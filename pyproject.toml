@@ -1,0 +1,13 @@
+[tool.black]
+line-length = 127
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | build
+  | dist
+)/
+'''

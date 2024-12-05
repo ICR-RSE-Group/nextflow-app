@@ -1,8 +1,9 @@
 from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 
-import shared.ssh as ssh
 import streamlit as st
+
+import shared.ssh as ssh
 
 
 @contextmanager

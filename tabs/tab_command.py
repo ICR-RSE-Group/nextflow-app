@@ -7,6 +7,7 @@ import streamlit as st
 
 # from ping3 import ping
 
+
 @contextmanager
 def st_capture(output_func):
     try:
@@ -23,26 +24,26 @@ def st_capture(output_func):
     except Exception as e:
         st.error(str(e))
 
+
 def get_path_to_script(selected_pipeline, selected_project):
     NX_shared_path = "/data/scratch/shared/RSE/NF-project-configurations/"
-    #e.g., /data/scratch/shared/RSE/NF-project-configurations/nf-long-reads/scripts
+    # e.g., /data/scratch/shared/RSE/NF-project-configurations/nf-long-reads/scripts
     path = NX_shared_path + selected_project + "/scripts/"
-    #TODO: we need to rename all scripts and follow the same naming pattern to remove this extra complexity
+    # TODO: we need to rename all scripts and follow the same naming pattern to remove this extra complexity
     if selected_project == "nf-long-reads":
         path = path + "epi2me-samples.sh"
-    elif selected_project == "nf-tp53": 
+    elif selected_project == "nf-tp53":
         path = path + "tp53-samples.sh"
     else:
         print("selected project is not supported yet")
     return path
 
-#launch command based on the project
+
+# launch command based on the project
 def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0):
     if cmd_num == 0:
         path_to_script = get_path_to_script(selected_pipeline, selected_project)
-        cmd_pipeline = (
-            f"sbatch {path_to_script} {username} "
-        )
+        cmd_pipeline = f"sbatch {path_to_script} {username} "
         return cmd_pipeline
     elif cmd_num == 1:
         cmd_pipeline = f"squeue -u {username}"
@@ -54,6 +55,7 @@ def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0)
         cmd_pipeline = "echo hello from nextflow-on-Alma app"
         return cmd_pipeline
 
+
 def tab(username, MY_SSH, selected_pipeline, selected_project):
     cols = st.columns([1, 1, 1])
     with cols[0]:
@@ -64,13 +66,13 @@ def tab(username, MY_SSH, selected_pipeline, selected_project):
             help="Enter your username e.g. ralcraft",
         )
 
-    def run_nextflow(): #username, MY_SSH, selected_pipeline, selected_project):
-            cmd_pipeline = pipe_cmd(username, selected_pipeline, selected_project, cmd_num=0)#develop this
-            st.write("Command used:")
-            st.code(cmd_pipeline)
-            out_str, err_str = MY_SSH.run_cmd(cmd_pipeline, string=True)
+    def run_nextflow():  # username, MY_SSH, selected_pipeline, selected_project):
+        cmd_pipeline = pipe_cmd(username, selected_pipeline, selected_project, cmd_num=0)  # develop this
+        st.write("Command used:")
+        st.code(cmd_pipeline)
+        out_str, err_str = MY_SSH.run_cmd(cmd_pipeline, string=True)
 
-    def check_queue(): #username):
+    def check_queue():  # username):
         cmd_pipeline = pipe_cmd(username, None, None, cmd_num=1)
         st.write("Command used:")
         st.code(cmd_pipeline)

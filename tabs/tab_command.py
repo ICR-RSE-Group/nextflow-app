@@ -25,25 +25,25 @@ def st_capture(output_func):
         st.error(str(e))
 
 
-def get_path_to_script(selected_pipeline, selected_project):
+def get_path_to_script(selected_pipeline, selected_project, selected="all"):
     NX_shared_path = "/data/scratch/shared/RSE/NF-project-configurations/"
-    # e.g., /data/scratch/shared/RSE/NF-project-configurations/nf-long-reads/scripts
-    path = NX_shared_path + selected_project + "/scripts/"
-    # TODO: we need to rename all scripts and follow the same naming pattern to remove this extra complexity
-    if selected_project == "nf-long-reads":
-        path = path + "epi2me-samples.sh"
-    elif selected_project == "nf-tp53":
-        path = path + "tp53-samples.sh"
+    # e.g., /data/scratch/shared/RSE/NF-project-configurations/epi2me-human-variation/nf-long-reads/scripts
+    path = NX_shared_path + selected_pipeline + "/" + selected_project + "/scripts/"
+    if selected == "all":
+        path = path + "launch_samples.sh"
+    elif selected == "demo":
+        path = path + "launch_demo.sh"
     else:
-        print("selected project is not supported yet")
+        path = path + "launch_sample_analysis.sh"
+        raise Exception("No support for sample runs on customised entries")
     return path
 
 
 # launch command based on the project
-def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0):
+def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0, selected_samples="all"):
     if cmd_num == 0:
-        path_to_script = get_path_to_script(selected_pipeline, selected_project)
-        cmd_pipeline = f"sbatch {path_to_script} {username} "
+        path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
+        cmd_pipeline = f"sbatch {path_to_script}"
         return cmd_pipeline
     elif cmd_num == 1:
         cmd_pipeline = f"squeue -u {username}"
@@ -56,7 +56,7 @@ def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0)
         return cmd_pipeline
 
 
-def tab(username, MY_SSH, selected_pipeline, selected_project):
+def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples="all"):
     cols = st.columns([1, 1, 1])
     with cols[0]:
         username = st.text_input(
@@ -67,7 +67,9 @@ def tab(username, MY_SSH, selected_pipeline, selected_project):
         )
 
     def run_nextflow():  # username, MY_SSH, selected_pipeline, selected_project):
-        cmd_pipeline = pipe_cmd(username, selected_pipeline, selected_project, cmd_num=0)  # develop this
+        cmd_pipeline = pipe_cmd(
+            username, selected_pipeline, selected_project, cmd_num=0, selected_samples="all"
+        )  # develop this
         st.write("Command used:")
         st.code(cmd_pipeline)
         out_str, err_str = MY_SSH.run_cmd(cmd_pipeline, string=True)

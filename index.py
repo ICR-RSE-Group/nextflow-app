@@ -9,8 +9,8 @@ st.set_page_config(
 
 
 def main():
-    p1 = st.Page("pages/login.py")
-    p2 = st.Page("pages/run_pipeline.py")
+    p1 = st.Page("views/login.py")
+    p2 = st.Page("views/run_pipeline.py")
     nav_pages = [p1, p2]
     pages = {"p1": p1, "p2": p2}
     st.session_state["pages"] = pages

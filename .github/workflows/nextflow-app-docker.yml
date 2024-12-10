@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: markisicr24/nextflow-app
+  DOCKER_IMAGE: icrsc/nextflow-app
 
 jobs:
   docker:

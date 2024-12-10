@@ -5,7 +5,9 @@ from io import StringIO
 import pandas as pd
 import streamlit as st
 
-# from ping3 import ping
+# Initialize session state variables
+if "button_clicked" not in st.session_state:
+    st.session_state.button_clicked = False
 
 
 @contextmanager
@@ -90,5 +92,9 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
             st.error(err_str)
 
     left_column, right_column = st.columns(2)
-    left_column.button(f"Run the selected nextflow pipeline for {username}", on_click=run_nextflow)
+    if left_column.button(
+        f"Run the selected nextflow pipeline for {username}", on_click=run_nextflow, disabled=st.session_state.button_clicked
+    ):
+        st.session_state.button_clicked = True
+        st.success("Button clicked!")
     right_column.button(f"Check queue for {username}", key="checkqueue", on_click=check_queue)

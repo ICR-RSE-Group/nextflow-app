@@ -1,0 +1,85 @@
+import pandas as pd
+import streamlit as st
+
+import shared.sessionstate as ss
+import tabs.tab_logon as tl
+
+header = """
+        <span style="color:black;">
+        <img src="https://www.icr.ac.uk/assets/img/logo.png"
+        alt="icr" width="200px"></span><span style=
+        "color:darkred;font-size:40px;"> -🍃 </span><span style=
+        "color:green;font-size:40px;">RUN-NEXTFLOW</span><span style=
+        "color:darkred;font-size:40px;">🍃- </span>
+        """
+st.markdown(header, unsafe_allow_html=True)
+
+st.write("---  ")
+
+st.write("## Login")
+st.write("Login to your alma account before running a nextflow pipeline.")
+
+OK, MY_SSH, username = tl.tab()
+
+ss.ss_set("LOGIN_OK", OK)
+ss.ss_set("MY_SSH", MY_SSH)
+ss.ss_set("user_name", username)
+
+
+# I want to move between tabs automatically
+# move between tabs
+def display():
+    st.session_state["run_pipeline"] = True
+    if st.session_state.get("run_pipeline", False) and "login" in st.session_state:
+        if "pages" in st.session_state:
+            page = st.session_state["pages"].get("p2", None)
+            if page:
+                st.switch_page(page)
+
+
+def display_restricted_access(username):
+    st.error(
+        f"⚠️ Access Restricted ⚠️\n\n"
+        f"Dear {username},\n\n"
+        "We apologize, but access to the nextflow-app is currently restricted. "
+        "For any requests or further information, please contact our support team.\n\n"
+        "**Contact Information:**\n"
+        "- **Name:** Mira Sarkis\n"
+        "- **Department:** Scientific Computing Helpdesk (SCHelpdesk)\n"
+        "- **Email:** [schelpdesk@icr.ac.uk](mailto:schelpdesk@icr.ac.uk)\n\n"
+        "Thank you for your understanding."
+    )
+
+    st.info(
+        "ℹ️ **Note:** Please include your username and the reason for your request "
+        "when contacting the support team. This will help us process your request more efficiently."
+    )
+
+
+def update_session_info(group, cost_account):
+    ss.ss_set("user_group", group)
+    ss.ss_set("user_cost_account", cost_account)
+
+
+def check_whiteList(username):
+    whitelist = "custom_files/user_whitelist.tsv"
+    df = pd.read_csv(whitelist, delimiter="\t")
+    row = df.loc[df["username"] == username]
+    if row.empty:  # user not on the white liste
+        return False
+
+    # update session info
+    update_session_info(row["group"], row["account-code"])
+    return True
+
+
+if "login" not in st.session_state:
+    st.session_state["login"] = {}
+if "run_pipeline" not in st.session_state:
+    st.session_state["run_pipeline"] = False
+
+if OK:
+    if not check_whiteList(username):
+        display_restricted_access(username)
+    else:
+        display()

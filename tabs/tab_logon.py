@@ -2,8 +2,7 @@ from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 
 import streamlit as st
-
-import shared.ssh as ssh
+from pyalma import LocalFileReader, SshClient
 
 
 @contextmanager
@@ -41,21 +40,17 @@ def tab():
             OK = True
         else:
             with st.spinner("Validating login"):
-                MY_SSH = ssh.SshConnection("remote", username, password, server=server)
-
+                MY_SSH = SshClient(server, username, password)
                 print("Validating login...")
-                cmd = "cd ~ && ls -l1"
-                results_str, error_str = MY_SSH.run_cmd(cmd)
 
-                if error_str:
-                    print("Errors", error_str)
-                else:
-                    print("Session validated successfully")
-
-                OK = error_str == ""
+                _dict = MY_SSH.run_cmd("cd ~ &ls -l")
+                OK = _dict["err"] is None
                 if OK:
+                    print("Session validated successfully")
                     st.success("Session validated successfully")
                 else:
-                    st.error("Correct login details and try again")
+                    print("Errors", _dict["err"])
+                    err_msg = "Connection failed: " + _dict["err"]
+                    st.error(err_msg)
 
     return OK, MY_SSH, username

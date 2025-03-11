@@ -1,13 +1,13 @@
-import datetime
 from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 
-import pandas as pd
 import streamlit as st
 
 # Initialize session state variables
 if "run_pipeline_clicked" not in st.session_state:
     st.session_state.run_pipeline_clicked = False
+if "check_queue" not in st.session_state:
+    st.session_state.check_queue = False
 
 
 @contextmanager
@@ -77,22 +77,24 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
         )  # develop this
         st.write("Command used:")
         st.code(cmd_pipeline)
-        out_str, err_str = MY_SSH.run_cmd(cmd_pipeline, string=True)
+        _dict = MY_SSH.run_cmd(cmd_pipeline)
 
     def check_queue():  # username):
+        st.session_state.check_queue = True
+
+    if st.session_state.check_queue:
         cmd_pipeline = pipe_cmd(username, None, None, cmd_num=1)
         st.write("Command used:")
         st.code(cmd_pipeline)
-        out_str, err_str = MY_SSH.run_cmd(cmd_pipeline, string=True)
-        if err_str == "":
+        _dict = MY_SSH.run_cmd(cmd_pipeline)
+        if _dict["err"] == None:
             st.write("Output:")
-            st.code(out_str)
+            st.code(_dict["output"])
             st.write(
                 "If you see '***' job on compute node, that suggests that the job has been sent to the cluster (in the queue (PD) or running (R))"
             )
-
         else:
-            st.error(err_str)
+            st.error(_dict["err"])
 
     left_column, right_column = st.columns(2)
     # disable button once the user click a first time. by default it gets disabled after calling the callback

@@ -16,11 +16,9 @@ def reset_button_state():
 
 
 header = """
-        <span style="color:black;">
-        <img src="https://www.icr.ac.uk/assets/img/logo.png"
-        alt="icr" width="200px"></span><span style=
+        <span style=
         "color:darkred;font-size:40px;"> -🍃 </span><span style=
-        "color:green;font-size:40px;">RUN-NEXTFLOW</span><span style=
+        "color:green;font-size:40px;">RUN NEXTFLOW on ALMA</span><span style=
         "color:darkred;font-size:40px;">🍃- </span>
         """
 st.markdown(header, unsafe_allow_html=True)

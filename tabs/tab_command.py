@@ -6,8 +6,8 @@ import pandas as pd
 import streamlit as st
 
 # Initialize session state variables
-if "button_clicked" not in st.session_state:
-    st.session_state.button_clicked = False
+if "run_pipeline_clicked" not in st.session_state:
+    st.session_state.run_pipeline_clicked = False
 
 
 @contextmanager
@@ -69,6 +69,9 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
         )
 
     def run_nextflow():  # username, MY_SSH, selected_pipeline, selected_project):
+        st.success("Button clicked!")
+        print("run_nextflow was called")
+        return True  # temporary
         cmd_pipeline = pipe_cmd(
             username, selected_pipeline, selected_project, cmd_num=0, selected_samples="all"
         )  # develop this
@@ -92,9 +95,14 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
             st.error(err_str)
 
     left_column, right_column = st.columns(2)
-    if left_column.button(
-        f"Run the selected nextflow pipeline for {username}", on_click=run_nextflow, disabled=st.session_state.button_clicked
-    ):
-        st.session_state.button_clicked = True
-        st.success("Button clicked!")
+    # disable button once the user click a first time. by default it gets disabled after calling the callback
+    v = left_column.button(
+        f"Run the selected nextflow pipeline for {username}", disabled=st.session_state.run_pipeline_clicked
+    )  # on_click=run_nextflow,
+    if v:
+        st.session_state.run_pipeline_clicked = True
+        run_nextflow()
+        print("session value:", st.session_state.run_pipeline_clicked)
+    #   st.session_state.run_pipeline_clicked = True
+
     right_column.button(f"Check queue for {username}", key="checkqueue", on_click=check_queue)

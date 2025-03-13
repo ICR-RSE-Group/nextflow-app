@@ -1,13 +1,19 @@
+import re
+import time
 from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 
 import streamlit as st
 
+import shared.helpers as hlp
+from shared.sessionstate import ss_get, ss_set
+
 # Initialize session state variables
 if "run_pipeline_clicked" not in st.session_state:
-    st.session_state.run_pipeline_clicked = False
-if "check_queue" not in st.session_state:
-    st.session_state.check_queue = False
+    ss_set("run_pipeline_clicked", False)
+
+if "job_id" not in st.session_state:
+    ss_set("job_id", "")
 
 
 @contextmanager
@@ -40,12 +46,39 @@ def get_path_to_script(selected_pipeline, selected_project, selected="all"):
         raise Exception("No support for sample runs on customised entries")
     return path
 
+    # --env --params
+    # --work-dir
+    # --outdir
+
 
 # launch command based on the project
-def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0, selected_samples="all"):
+def pipe_cmd(
+    username,
+    selected_pipeline=None,
+    selected_project=None,
+    cmd_num=0,
+    selected_samples="all",
+    work_dir="work",
+    output_dir="output",
+):
     if cmd_num == 0:
         path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
-        cmd_pipeline = f"sbatch {path_to_script}"
+        # cmake sure to cd before launching the script
+        cmd_pipeline = f"mkdir -p {work_dir}/logs; \n"
+        cmd_pipeline += f"cd {work_dir}; \n"
+        if selected_samples == "demo":  # use sbatch
+            # sbatch launch_demo.sh work_dir output_dir custom_config.config /data/rds/DIT/SCICOM/SCRSE/shared/conda/nextflow_env
+            cmd_pipeline += f"sbatch {path_to_script} {work_dir} {output_dir}"
+        if selected_samples == "all":  # use bash
+            ##./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json"
+            # Usage:
+            # bash launch_batch_analysis.sh \
+            #     --work-dir "workdir" \
+            #     --outdir "output" \
+            #     --env "/data/rds/DIT/SCICOM/SCRSE/shared/conda/nextflow_env" \
+            #     --params "/data/params/parameters.json" \
+            #     --config "custom_config.config"
+            cmd_pipeline += f"sbatch {path_to_script} --work-dir {work_dir} --outdir {output_dir}"
         return cmd_pipeline
     elif cmd_num == 1:
         cmd_pipeline = f"squeue -u {username}"
@@ -58,7 +91,7 @@ def pipe_cmd(username, selected_pipeline=None, selected_project=None, cmd_num=0,
         return cmd_pipeline
 
 
-def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples="all"):
+def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples="all", work_dir="work", output_dir="output"):
     cols = st.columns([1, 1, 1])
     with cols[0]:
         username = st.text_input(
@@ -69,42 +102,73 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
         )
 
     def run_nextflow():  # username, MY_SSH, selected_pipeline, selected_project):
-        st.success("Button clicked!")
-        print("run_nextflow was called")
-        return True  # temporary
+        # return True  # temporary
         cmd_pipeline = pipe_cmd(
-            username, selected_pipeline, selected_project, cmd_num=0, selected_samples="all"
-        )  # develop this
-        st.write("Command used:")
+            username,
+            selected_pipeline,
+            selected_project,
+            cmd_num=0,
+            selected_samples=selected_samples,
+            output_dir=output_dir,
+            work_dir=work_dir,
+        )
         st.code(cmd_pipeline)
         _dict = MY_SSH.run_cmd(cmd_pipeline)
+        # process output to get job id
+        match = re.search(r"Submitted batch job (\d+)", _dict["output"])
+        job_id = match.group(1) if match else None
+        st.success(f"✅ Job ID: {job_id}")
+        return job_id
+        # to do, we need to wait for an asynchronous answer regarding slurm?
 
-    def check_queue():  # username):
-        st.session_state.check_queue = True
-
-    if st.session_state.check_queue:
-        cmd_pipeline = pipe_cmd(username, None, None, cmd_num=1)
-        st.write("Command used:")
-        st.code(cmd_pipeline)
-        _dict = MY_SSH.run_cmd(cmd_pipeline)
-        if _dict["err"] == None:
-            st.write("Output:")
-            st.code(_dict["output"])
-            st.write(
-                "If you see '***' job on compute node, that suggests that the job has been sent to the cluster (in the queue (PD) or running (R))"
-            )
-        else:
-            st.error(_dict["err"])
-
-    left_column, right_column = st.columns(2)
-    # disable button once the user click a first time. by default it gets disabled after calling the callback
-    v = left_column.button(
-        f"Run the selected nextflow pipeline for {username}", disabled=st.session_state.run_pipeline_clicked
-    )  # on_click=run_nextflow,
-    if v:
-        st.session_state.run_pipeline_clicked = True
-        run_nextflow()
-        print("session value:", st.session_state.run_pipeline_clicked)
-    #   st.session_state.run_pipeline_clicked = True
-
-    right_column.button(f"Check queue for {username}", key="checkqueue", on_click=check_queue)
+    tabP, tabL, tabQ = st.tabs(["Run pipeline", "Check logs", "Check queues"])
+    with tabL:
+        if st.button("Get Logs"):
+            tO, tE = st.tabs(["Output", "Error"])
+            with tO:
+                outputO = st.empty()
+            with tE:
+                outputE = st.empty()
+            with st.spinner("Fetching...", show_time=True):
+                try:
+                    with hlp.st_capture(outputO.code):
+                        print("Output log", f"{work_dir}/logs/cosmx.txt")  # todo: need to rename log files?
+                        txtl = MY_SSH.read_file(f"{work_dir}/logs/cosmx.txt")
+                        print(txtl)
+                    with hlp.st_capture(outputE.code):
+                        print("Error log", f"{work_dir}/logs/cosmx.err")
+                        txte = MY_SSH.read_file(f"{work_dir}/logs/cosmx.err")
+                        print(txte)
+                except Exception as e:
+                    st.error(f"Error {e}")
+    with tabQ:
+        if st.button("Check slurm queues"):
+            output = st.empty()
+            with st.spinner("Checking...", show_time=True):
+                with hlp.st_capture(output.code):
+                    cmd_pipeline = pipe_cmd(username, None, None, cmd_num=1)
+                    print("Executing command\n", cmd_pipeline)
+                    try:
+                        results = MY_SSH.run_cmd(cmd_pipeline)
+                        if results["err"] != None:
+                            st.error(results["err"])
+                        else:
+                            print("------------------------------")
+                            print(results["output"])
+                    except Exception as e:
+                        st.error(f"Error {e}")
+    with tabP:
+        # disable button once the user click a first time. by default it gets disabled after calling the callback
+        v = st.button(f"Run the selected nextflow pipeline for {username}", disabled=ss_get("run_pipeline_clicked"))
+        if ss_get("job_id") != "":
+            job_id = ss_get("job_id")
+            st.success(f"Running Job ID: {job_id}")
+        if v:
+            ss_set("run_pipeline_clicked", True)
+            output = st.empty()
+            with st.spinner("Starting...", show_time=True):
+                with hlp.st_capture(output.code):
+                    try:
+                        ss_set("job_id", run_nextflow())
+                    except Exception as e:
+                        st.error(f"Error {e}")

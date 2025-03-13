@@ -48,8 +48,19 @@ if selected_pipeline != "select":
     )
     selected_samples = st.selectbox("Select your samples", samples, on_change=reset_button_state, key="selecct_samples")
 
+work_dir = st.text_input("Working directory")
+output_dir = st.text_input("Output directory")
+
 # passing inputs between tabs
 if LOGIN_OK:
-    tt.tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples)
+    tt.tab(
+        username,
+        MY_SSH,
+        selected_pipeline,
+        selected_project,
+        selected_samples=selected_samples,
+        work_dir=work_dir,
+        output_dir=output_dir,
+    )
 else:
-    st.write("#### To use run nextflow on Alma, please log in first")
+    st.write("#### Log in first to use run nextflow on Alma")

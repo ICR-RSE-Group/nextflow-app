@@ -1,18 +1,18 @@
 import streamlit as st
 
-import shared.sessionstate as ss
 import tabs.tab_command as tt
 from pipeline_project_map import map_pipeline_project
+from shared.sessionstate import ss_get, ss_set
 
 # Initialize session state variables
 if "select1_value" not in st.session_state:
-    st.session_state.select1_value = None
+    ss_set("select1_value", None)
 if "select2_value" not in st.session_state:
-    st.session_state.select2_value = None
+    ss_set("select2_value", None)
 
 
 def reset_button_state():
-    st.session_state.button_clicked = False
+    ss_set("button_clicked", False)
 
 
 header = """
@@ -28,9 +28,9 @@ st.write("---  ")
 st.write("## Running Nextflow pipeline on Alma")
 st.write("Select your pipeline and your project, then submit the process")
 
-LOGIN_OK = ss.ss_get("LOGIN_OK")
-MY_SSH = ss.ss_get("MY_SSH")
-username = ss.ss_get("user_name")
+LOGIN_OK = ss_get("LOGIN_OK")
+MY_SSH = ss_get("MY_SSH")
+username = ss_get("user_name")
 
 samples = ["all", "demo"]  # , "customised"]
 selected_project = None

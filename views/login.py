@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-import shared.sessionstate as ss
 import tabs.tab_logon as tl
+from shared.sessionstate import ss_get, ss_set
 
 header = """
         <span style=
@@ -19,18 +19,18 @@ st.write("Login to your alma account before running a nextflow pipeline.")
 
 OK, MY_SSH, username = tl.tab()
 
-ss.ss_set("LOGIN_OK", OK)
-ss.ss_set("MY_SSH", MY_SSH)
-ss.ss_set("user_name", username)
+ss_set("LOGIN_OK", OK)
+ss_set("MY_SSH", MY_SSH)
+ss_set("user_name", username)
 
 
 # I want to move between tabs automatically
 # move between tabs
 def display():
-    st.session_state["run_pipeline"] = True
-    if st.session_state.get("run_pipeline", False) and "login" in st.session_state:
+    ss_set("run_pipeline", True)
+    if ss_get("run_pipeline", False) and "login" in st.session_state:
         if "pages" in st.session_state:
-            page = st.session_state["pages"].get("p2", None)
+            page = ss_set("pages").get("p2", None)
             if page:
                 st.switch_page(page)
 
@@ -55,8 +55,8 @@ def display_restricted_access(username):
 
 
 def update_session_info(group, cost_account):
-    ss.ss_set("user_group", group)
-    ss.ss_set("user_cost_account", cost_account)
+    ss_set("user_group", group)
+    ss_set("user_cost_account", cost_account)
 
 
 def check_whiteList(username):
@@ -72,9 +72,9 @@ def check_whiteList(username):
 
 
 if "login" not in st.session_state:
-    st.session_state["login"] = {}
+    ss_set("login", {})
 if "run_pipeline" not in st.session_state:
-    st.session_state["run_pipeline"] = False
+    ss_set("run_pipeline", False)
 
 if OK:
     if not check_whiteList(username):

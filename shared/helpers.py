@@ -1,6 +1,7 @@
 from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 
+import yaml
 from pyalma import SshClient
 
 ############################################################################
@@ -34,19 +35,22 @@ def validate_user(ssh_host, sftp_host, username, password):
     results = MY_SSH.run_cmd(cmd_usr)
     if results["err"] != None:
         print("Errors")
-        print(results["err"])
-        return False, None, "Correct login details and try again", []
+        err_msg = "Connection failed: " + results["err"]
+        return False, None, err_msg, []
     else:
-        groups = results["output"].strip().split("\n")
+        groups = results["output"].strip().split("\n")[1:]
         return True, MY_SSH, "Session validated successfully", groups
 
 
 ############################################################################
-def imply_scratch_rds(username, group):
-    if group == "infotech":
-        scratch = f"/data/scratch/DCO/DIGOPS/SCIENCOM/{username}"
-        rds = "/data/rds/DIT/SCICOM/SCRSE"
-    else:
-        scratch = f"/scratch/{username}/{group}"
-        rds = f"/rds/general/user/{username}/home"
+def get_scratch_rds_path(username, group, yaml_file="custom_files/group_path_map.yaml"):
+    print(username, group)
+    with open(yaml_file, "r") as file:
+        config = yaml.safe_load(file)
+
+    group_config = config["group_paths"].get(group, config["group_paths"].get("default"))
+
+    scratch = group_config["scratch"].format(username=username, group=group)
+    rds = group_config["rds"].format(username=username)
+    print(scratch, rds)
     return scratch, rds

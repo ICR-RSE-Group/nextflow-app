@@ -2,7 +2,7 @@ import streamlit as st
 
 import tabs.tab_command as tt
 from pipeline_project_map import map_pipeline_project
-from shared.sessionstate import ss_get, ss_set
+from shared.sessionstate import retrieve_all_from_ss, ss_get, ss_set
 
 # Initialize session state variables
 if "select1_value" not in st.session_state:
@@ -14,6 +14,9 @@ if "select2_value" not in st.session_state:
 def reset_button_state():
     ss_set("button_clicked", False)
 
+
+# pull saved values if set, otherwise set to defaults
+OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
 
 header = """
         <span style=
@@ -27,10 +30,6 @@ st.write("---  ")
 
 st.write("## Running Nextflow pipeline on Alma")
 st.write("Select your pipeline and your project, then submit the process")
-
-LOGIN_OK = ss_get("LOGIN_OK")
-MY_SSH = ss_get("MY_SSH")
-username = ss_get("user_name")
 
 samples = ["all", "demo"]  # , "customised"]
 selected_project = None
@@ -46,13 +45,13 @@ if selected_pipeline != "select":
         on_change=reset_button_state,
         key="select_pipeline",
     )
-    selected_samples = st.selectbox("Select your samples", samples, on_change=reset_button_state, key="selecct_samples")
+    selected_samples = st.selectbox("Select your samples", samples, on_change=reset_button_state, key="select_samples")
 
-work_dir = st.text_input("Working directory")
-output_dir = st.text_input("Output directory")
+work_dir = st.text_input("Working directory", SCRATCH)
+output_dir = st.text_input("Output directory", RDS)
 
 # passing inputs between tabs
-if LOGIN_OK:
+if OK:
     tt.tab(
         username,
         MY_SSH,

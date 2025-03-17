@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 import tabs.tab_logon as tl
-from shared.sessionstate import ss_get, ss_set
+from shared.sessionstate import retrieve_all_from_ss, ss_get, ss_set
 
 header = """
         <span style=
@@ -17,11 +17,9 @@ st.write("---  ")
 st.write("## Login")
 st.write("Login to your alma account before running a nextflow pipeline.")
 
-OK, MY_SSH, username = tl.tab()
-
-ss_set("LOGIN_OK", OK)
-ss_set("MY_SSH", MY_SSH)
-ss_set("user_name", username)
+tl.tab()
+# pull saved values if set, otherwise set to defaults
+OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
 
 
 # I want to move between tabs automatically
@@ -30,7 +28,7 @@ def display():
     ss_set("run_pipeline", True)
     if ss_get("run_pipeline", False) and "login" in st.session_state:
         if "pages" in st.session_state:
-            page = ss_set("pages").get("p2", None)
+            page = ss_get("pages").get("p2", None)
             if page:
                 st.switch_page(page)
 
@@ -77,6 +75,7 @@ if "run_pipeline" not in st.session_state:
     ss_set("run_pipeline", False)
 
 if OK:
+    display()
     if not check_whiteList(username):
         display_restricted_access(username)
     else:

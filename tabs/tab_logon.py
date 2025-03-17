@@ -1,31 +1,14 @@
-from contextlib import contextmanager, redirect_stdout
-from io import StringIO
-
 import streamlit as st
-from pyalma import LocalFileReader, SshClient
+
+import shared.helpers as hlp
+from shared.sessionstate import retrieve_all_from_ss, save_in_ss, ss_get
 
 
-@contextmanager
-def st_capture(output_func):
-    try:
-        with StringIO() as stdout, redirect_stdout(stdout):
-            old_write = stdout.write
-
-            def new_write(string):
-                ret = old_write(string)
-                output_func(stdout.getvalue())
-                return ret
-
-            stdout.write = new_write
-            yield
-    except Exception as e:
-        st.error(str(e))
-
-
+# once connected, you cannot try to re-connect
 def tab():
-    MY_SSH = None
-    OK = False
-
+    # pull saved values if set, otherwise set to defaults
+    keys = ["LOGIN_OK", "MY_SSH", "user_name", "GROUPS", "GROUP", "SCRATCH", "RDS"]
+    OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
     cols = st.columns(3)
     with cols[0]:
         server = st.text_input("Enter your remote server:", "alma.icr.ac.uk")
@@ -33,24 +16,31 @@ def tab():
         username = st.text_input("Enter your username:", key="username")
     with cols[2]:
         password = st.text_input("Enter your password:", "", type="password", key="password")
-
+    sftp_server = "alma-app.icr.ac.uk"
     if st.button("Connect", key="connect"):
         if username == "admin" and password == "admin":
             st.success("Admin login successful")
             OK = True
         else:
             with st.spinner("Validating login"):
-                MY_SSH = SshClient(server, username, password)
-                print("Validating login...")
-
-                _dict = MY_SSH.run_cmd("cd ~ &ls -l")
-                OK = _dict["err"] is None
+                OK, MY_SSH, msg, GROUPS = hlp.validate_user(server, sftp_server, username, password)
+                print(OK, MY_SSH, msg, GROUPS)
                 if OK:
-                    print("Session validated successfully")
-                    st.success("Session validated successfully")
+                    st.success(msg)
+                    GROUP = st.radio("Select group", GROUPS, horizontal=True)
+                    SCRATCH, RDS = hlp.get_scratch_rds_path(username, GROUP)
+                    # save in session states
+                    ss_dict = {
+                        "LOGIN_OK": OK,
+                        "MY_SSH": MY_SSH,
+                        "user_name": username,
+                        "GROUPS": GROUPS,
+                        "GROUP": GROUP,
+                        "SCRATCH": SCRATCH,
+                        "RDS": RDS,
+                    }
+                    save_in_ss(ss_dict)
                 else:
-                    print("Errors", _dict["err"])
-                    err_msg = "Connection failed: " + _dict["err"]
-                    st.error(err_msg)
+                    st.error(msg)
 
     return OK, MY_SSH, username

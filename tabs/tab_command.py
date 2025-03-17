@@ -1,12 +1,11 @@
 import re
 import time
-from contextlib import contextmanager, redirect_stdout
 from io import StringIO
 
 import streamlit as st
 
 import shared.helpers as hlp
-from shared.sessionstate import ss_get, ss_set
+from shared.sessionstate import retrieve_all_from_ss, ss_get, ss_set
 
 # Initialize session state variables
 if "run_pipeline_clicked" not in st.session_state:
@@ -14,23 +13,8 @@ if "run_pipeline_clicked" not in st.session_state:
 
 if "job_id" not in st.session_state:
     ss_set("job_id", "")
-
-
-@contextmanager
-def st_capture(output_func):
-    try:
-        with StringIO() as stdout, redirect_stdout(stdout):
-            old_write = stdout.write
-
-            def new_write(string):
-                ret = old_write(string)
-                output_func(stdout.getvalue())
-                return ret
-
-            stdout.write = new_write
-            yield
-    except Exception as e:
-        st.error(str(e))
+# pull saved values if set, otherwise set to defaults
+OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
 
 
 def get_path_to_script(selected_pipeline, selected_project, selected="all"):

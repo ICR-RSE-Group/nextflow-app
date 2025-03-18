@@ -5,10 +5,10 @@ from pipeline_project_map import map_pipeline_project
 from shared.sessionstate import retrieve_all_from_ss, ss_get, ss_set
 
 # Initialize session state variables
-if "select1_value" not in st.session_state:
-    ss_set("select1_value", None)
-if "select2_value" not in st.session_state:
-    ss_set("select2_value", None)
+# if "select1_value" not in st.session_state:
+#     ss_set("select1_value", None)
+# if "select2_value" not in st.session_state:
+#     ss_set("select2_value", None)
 
 
 def reset_button_state():

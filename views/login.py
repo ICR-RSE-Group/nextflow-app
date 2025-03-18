@@ -23,14 +23,13 @@ OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
 
 
 # I want to move between tabs automatically
-# move between tabs
 def display():
-    ss_set("run_pipeline", True)
-    if ss_get("run_pipeline", False) and "login" in st.session_state:
-        if "pages" in st.session_state:
-            page = ss_get("pages").get("p2", None)
-            if page:
-                st.switch_page(page)
+    # ss_set("run_pipeline", True)
+    # if ss_get("run_pipeline", False) and "login" in st.session_state:
+    if "pages" in st.session_state:
+        page = ss_get("pages").get("p2", None)
+        if page:
+            st.switch_page(page)
 
 
 def display_restricted_access(username):
@@ -52,30 +51,22 @@ def display_restricted_access(username):
     )
 
 
-def update_session_info(group, cost_account):
-    ss_set("user_group", group)
-    ss_set("user_cost_account", cost_account)
-
-
 def check_whiteList(username):
     whitelist = "custom_files/user_whitelist.tsv"
     df = pd.read_csv(whitelist, delimiter="\t")
     row = df.loc[df["username"] == username]
     if row.empty:  # user not on the white liste
         return False
-
     # update session info
-    update_session_info(row["group"], row["account-code"])
+    ss_set("user_group", row["group"])
+    ss_set("user_cost_account", row["account-code"])
     return True
 
 
-if "login" not in st.session_state:
-    ss_set("login", {})
-if "run_pipeline" not in st.session_state:
-    ss_set("run_pipeline", False)
+# if "run_pipeline" not in st.session_state:
+#     ss_set("run_pipeline", False)
 
 if OK:
-    display()
     if not check_whiteList(username):
         display_restricted_access(username)
     else:

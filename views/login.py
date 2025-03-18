@@ -12,7 +12,7 @@ st.write("Login to your alma account before running a nextflow pipeline.")
 
 tl.tab()
 # pull saved values if set, otherwise set to defaults
-OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE = retrieve_all_from_ss()
+(OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE) = retrieve_all_from_ss()
 
 
 # I want to move between tabs automatically
@@ -58,8 +58,7 @@ def check_whiteList(username):
 
 # if "run_pipeline" not in st.session_state:
 #     ss_set("run_pipeline", False)
-
-if OK:
+if OK and GROUP != "Select an option":
     if not check_whiteList(username):
         display_restricted_access(username)
     else:

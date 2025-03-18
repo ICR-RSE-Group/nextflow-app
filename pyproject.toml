@@ -1,3 +1,7 @@
+[tool.isort]
+profile = "black"
+filter_files = true
+
 [tool.black]
 line-length = 127
 extend-exclude = '''

@@ -19,19 +19,17 @@ def save_in_ss(data_dict):
 
 
 def retrieve_all_from_ss():
-    OK = ss_get("LOGIN_OK", False)
-    MY_SSH = ss_get("MY_SSH", None)
-    username = ss_get("user_name", "")
-    GROUPS = ss_get("GROUPS", "")
-    GROUP = ss_get("GROUP", "")
-    SCRATCH = ss_get("SCRATCH", "")
-    RDS = ss_get("RDS", "")
-    PROJECT = ss_get("PROJECT", None)
-    SAMPLE = ss_get("SAMPLE", None)
-    PIPELINE = ss_get("PIPELINE", "select")
-    return OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE
+    keys_defaults = {
+        "LOGIN_OK": False,
+        "MY_SSH": None,
+        "user_name": "",
+        "GROUPS": "",
+        "GROUP": "Select an option",
+        "SCRATCH": "",
+        "RDS": "",
+        "PROJECT": None,
+        "SAMPLE": None,
+        "PIPELINE": "select",
+    }
 
-
-#    keys = ["LOGIN_OK", "MY_SSH", "user_name", "GROUPS", "GROUP", "SCRATCH", "RDS"]
-# def retrieve_all_from_ss(keys):
-#     return {key: ss_get(key, default_value) for key, default_value in zip(keys, [False, None, "", "", "", "", ""])}
+    return tuple(ss_get(key, default) for key, default in keys_defaults.items())

@@ -15,7 +15,7 @@ st.write("## Running Nextflow pipeline on Alma")
 st.write("Select your pipeline and your project, then submit the process")
 
 # pull saved values if set, otherwise set to defaults
-OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE = retrieve_all_from_ss()
+(OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE) = retrieve_all_from_ss()
 
 samples = ["all", "demo"]  # , "customised"]
 

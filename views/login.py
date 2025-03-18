@@ -3,23 +3,16 @@ import streamlit as st
 
 import tabs.tab_logon as tl
 from shared.sessionstate import retrieve_all_from_ss, ss_get, ss_set
+from shared.visual import header
 
-header = """
-        <span style=
-        "color:darkred;font-size:40px;"> -🍃 </span><span style=
-        "color:green;font-size:40px;">RUN NEXTFLOW on ALMA</span><span style=
-        "color:darkred;font-size:40px;">🍃- </span>
-        """
-st.markdown(header, unsafe_allow_html=True)
-
-st.write("---  ")
-
+header()
 st.write("## Login")
 st.write("Login to your alma account before running a nextflow pipeline.")
 
+
 tl.tab()
 # pull saved values if set, otherwise set to defaults
-OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
+OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE = retrieve_all_from_ss()
 
 
 # I want to move between tabs automatically

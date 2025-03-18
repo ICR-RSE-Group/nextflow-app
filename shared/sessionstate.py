@@ -26,7 +26,10 @@ def retrieve_all_from_ss():
     GROUP = ss_get("GROUP", "")
     SCRATCH = ss_get("SCRATCH", "")
     RDS = ss_get("RDS", "")
-    return OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS
+    PROJECT = ss_get("PROJECT", None)
+    SAMPLE = ss_get("SAMPLE", None)
+    PIPELINE = ss_get("PIPELINE", "select")
+    return OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE
 
 
 #    keys = ["LOGIN_OK", "MY_SSH", "user_name", "GROUPS", "GROUP", "SCRATCH", "RDS"]

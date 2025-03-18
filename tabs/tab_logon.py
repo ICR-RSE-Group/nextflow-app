@@ -7,11 +7,11 @@ from shared.sessionstate import retrieve_all_from_ss, save_in_ss, ss_get
 # once connected, you cannot try to re-connect
 def tab():
     # pull saved values if set, otherwise set to defaults
-    keys = ["LOGIN_OK", "MY_SSH", "user_name", "GROUPS", "GROUP", "SCRATCH", "RDS"]
-    OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
+    keys = ["LOGIN_OK", "MY_SSH", "user_name", "GROUPS", "GROUP", "SCRATCH", "RDS", "PROJECT", "SAMPLE"]
+    OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE = retrieve_all_from_ss()
     cols = st.columns(3)
     with cols[0]:
-        server = st.text_input("Enter your remote server:", "alma.icr.ac.uk")
+        server = st.text_input("Enter your remote server:", "alma.icr.ac.uk", key="server")
     with cols[1]:
         username = st.text_input("Enter your username:", key="username")
     with cols[2]:

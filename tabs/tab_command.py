@@ -14,7 +14,7 @@ if "run_pipeline_clicked" not in st.session_state:
 if "job_id" not in st.session_state:
     ss_set("job_id", "")
 # pull saved values if set, otherwise set to defaults
-OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS = retrieve_all_from_ss()
+OK, MY_SSH, username, GROUPS, GROUP, SCRATCH, RDS, PROJECT, SAMPLE, PIPELINE = retrieve_all_from_ss()
 
 
 def get_path_to_script(selected_pipeline, selected_project, selected="all"):

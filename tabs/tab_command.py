@@ -1,103 +1,29 @@
-import os
 import re
-import time
-from io import StringIO
 
 import streamlit as st
 
+import shared.command_helper as cmd_hlp
 import shared.helpers as hlp
 from shared.sessionstate import retrieve_all_from_ss, ss_get, ss_set
 
-# Initialize session state variables
-if "run_pipeline_clicked" not in st.session_state:
-    ss_set("run_pipeline_clicked", False)
-
-if "job_id" not in st.session_state:
-    ss_set("job_id", "")
 # pull saved values if set, otherwise set to defaults
-(
-    OK,
-    MY_SSH,
-    username,
-    GROUPS,
-    GROUP,
-    SCRATCH,
-    RDS,
-    PROJECT,
-    SAMPLE,
-    PIPELINE,
-) = retrieve_all_from_ss()
-
-
-def get_path_to_script(selected_pipeline, selected_project, selected="all"):
-    NX_SHARED_PATH = "/data/scratch/shared/RSE/NF-project-configurations"
-    # e.g., /data/scratch/shared/RSE/NF-project-configurations/epi2me-human-variation/nf-long-reads/scripts
-    base_path = os.path.join(NX_SHARED_PATH, selected_pipeline, selected_project, "scripts")
-
-    script_mapping = {
-        "all": "launch_samples.sh",
-        "demo": "launch_demo.sh",
-        "single": "launch_sample_analysis.sh",  # not yet supported
-    }
-
-    if selected in script_mapping:
-        return os.path.join(base_path, script_mapping[selected])
-
-    raise ValueError(f"Invalid selection '{selected}'. Only 'all' and 'demo' are supported.")
-
-
-# launch command based on the project
-def pipe_cmd(
-    username,
-    selected_pipeline="",
-    selected_project="",
-    cmd_num=0,
-    selected_samples="all",
-    work_dir="work",
-    output_dir="output",
-):
-    def get_pipeline_command():
-        """Generate the pipeline execution command based on the sample selection."""
-        path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
-
-        cmd_pipeline = f"""
-        mkdir -p {work_dir}/logs
-        cd {work_dir}
-        """
-        # not sure if this is the best thing-using job id for filenamne
-        log_out = f"{work_dir}/logs/%j.out"
-        log_err = f"{work_dir}/logs/%j.err"
-
-        if selected_samples == "demo":
-            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} {work_dir} {output_dir}"
-        elif selected_samples == "all":
-            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} --work-dir {work_dir} --outdir {output_dir}"
-            ##./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json"
-            # Usage:
-            # bash launch_batch_analysis.sh \
-            #     --work-dir "workdir" \
-            #     --outdir "output" \
-            #     --env "/data/rds/DIT/SCICOM/SCRSE/shared/conda/nextflow_env" \
-            #     --params "/data/params/parameters.json" \
-            #     --config "custom_config.config"
-
-        return cmd_pipeline.strip()
-
-    # Command mappings
-    command_map = {
-        0: get_pipeline_command(),
-        1: f"squeue -u {username}",
-        2: (
-            f"sacct --user {username} "
-            "--format UID,User,JobID,JobName,Submit,Elapsed,Partition,"
-            "NNodes,NCPUS,TotalCPU,CPUTime,ReqMem,MaxRSS,WorkDir,State,"
-            "Account,AllocTres -P"
-        ),
-        3: "echo hello from nextflow-on-Alma app",
-    }
-
-    # Return the corresponding command
-    return command_map.get(cmd_num, "echo 'Invalid command number'")
+ss_values = retrieve_all_from_ss()
+OK = ss_values["OK"]
+MY_SSH = ss_values["MY_SSH"]
+username = ss_values["user_name"]
+server = ss_values["server"]
+GROUP = ss_values["GROUP"]
+GROUPS = ss_values["GROUPS"]
+SCRATCH = ss_values["SCRATCH"]
+RDS = ss_values["RDS"]
+SAMPLE = ss_values["SAMPLE"]
+PIPELINE = ss_values["PIPELINE"]
+password = ss_values["password"]
+PROJECT = ss_values["PROJECT"]
+JOB_ID = ss_values["JOB_ID"]
+WORKDIR = ss_values["WORK_DIR"]
+OUTPUT_DIR = ss_values["OUTPUT_DIR"]
+run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 
 
 def display_log(title, log_path, output_container):
@@ -112,6 +38,8 @@ def display_log(title, log_path, output_container):
 
 
 def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples="all", work_dir="work", output_dir="output"):
+    JOB_ID = ss_values["JOB_ID"]
+
     cols = st.columns([1, 1, 1])
     with cols[0]:
         username = st.text_input(
@@ -121,9 +49,8 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
             help="Enter your username e.g. ralcraft",
         )
 
-    def run_nextflow():  # username, MY_SSH, selected_pipeline, selected_project):
-        # return True  # temporary
-        cmd_pipeline = pipe_cmd(
+    def run_nextflow():
+        cmd_pipeline = cmd_hlp.pipe_cmd(
             username,
             selected_pipeline,
             selected_project,
@@ -136,20 +63,19 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
         _dict = MY_SSH.run_cmd(cmd_pipeline)
         # process output to get job id
         match = re.search(r"Submitted batch job (\d+)", _dict["output"])
-        job_id = match.group(1) if match else None
-        st.success(f"✅ Job ID: {job_id}")
-        return job_id
+        JOB_ID = match.group(1) if match else None
+        st.success(f"✅ Job ID: {JOB_ID}")
+        return JOB_ID
         # to do, we need to wait for an asynchronous answer regarding slurm?
 
     tabP, tabL, tabQ = st.tabs(["Run pipeline", "Check logs", "Check queues"])
     with tabL:
         if st.button("Get Logs"):
-            job_id = ss_get("job_id", "")
-            if job_id == "":
+            if JOB_ID == "":
                 st.error("No job was launched yet")
             else:
-                log_out = f"{work_dir}/logs/{job_id}.out"
-                log_err = f"{work_dir}/logs/{job_id}.err"
+                log_out = f"{work_dir}/logs/{JOB_ID}.out"
+                log_err = f"{work_dir}/logs/{JOB_ID}.err"
                 tO, tE = st.tabs(["Output", "Error"])
                 outputO, outputE = tO.empty(), tE.empty()
                 with st.spinner("Fetching...", show_time=True):
@@ -161,7 +87,7 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
             output = st.empty()
             with st.spinner("Checking...", show_time=True):
                 with hlp.st_capture(output.code):
-                    cmd_pipeline = pipe_cmd(username, cmd_num=1)
+                    cmd_pipeline = cmd_hlp.pipe_cmd(username, cmd_num=1)
                     print("Executing command\n", cmd_pipeline)
                     try:
                         results = MY_SSH.run_cmd(cmd_pipeline)
@@ -174,16 +100,17 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
                         st.error(f"Error {e}")
     with tabP:
         # disable button once the user clicks a first time. by default it gets disabled after calling the callback
-        v = st.button(f"Run the selected nextflow pipeline for {username}", disabled=ss_get("run_pipeline_clicked"))
-        if ss_get("job_id") != "":
-            job_id = ss_get("job_id")
-            st.success(f"Running Job ID: {job_id}")
-        if v:
+        clicked = st.button(f"Run the selected nextflow pipeline for {username}", disabled=ss_get("run_pipeline_clicked"))
+        JOB_ID = ss_get("JOB_ID")
+        if JOB_ID is not None:
+            st.success(f"Running Job ID: {JOB_ID}")
+        if clicked:
             ss_set("run_pipeline_clicked", True)
             output = st.empty()
             with st.spinner("Starting...", show_time=True):
                 with hlp.st_capture(output.code):
                     try:
-                        ss_set("job_id", run_nextflow())
+                        JOB_ID = run_nextflow()
+                        ss_set("JOB_ID", JOB_ID)
                     except Exception as e:
                         st.error(f"Error {e}")

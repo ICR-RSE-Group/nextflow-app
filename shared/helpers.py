@@ -38,7 +38,7 @@ def validate_user(ssh_host, sftp_host, username, password):
         err_msg = "Connection failed: " + results["err"]
         return False, None, err_msg, []
     else:
-        groups = results["output"].strip().split("\n")[1:]
+        groups = results["output"].strip().split("\n")
         return True, MY_SSH, "Session validated successfully", groups
 
 

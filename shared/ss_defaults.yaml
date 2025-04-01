@@ -1,0 +1,19 @@
+keys_defaults:
+  OK: False
+  MY_SSH: null
+  user_name: ""
+  GROUPS: ""
+  GROUP: "Select an option"
+  SCRATCH: ""
+  RDS: ""
+  PROJECT: null
+  SAMPLE: null
+  PIPELINE: "select"
+  password: ""
+  server: "alma.icr.ac.uk"
+  JOB_ID: None
+  run_pipeline_clicked: False
+  button_clicked : False
+  group_selection: "Select an option"
+  WORK_DIR: None
+  OUTPUT_DIR: None

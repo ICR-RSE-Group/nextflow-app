@@ -9,13 +9,13 @@ def get_path_to_script(selected_pipeline, selected_project, selected="all"):
     script_mapping = {
         "all": "launch_samples.sh",
         "demo": "launch_demo.sh",
-        "single": "launch_sample_analysis.sh",  # not yet supported
+        "customised": "launch_samples.sh",
     }
 
     if selected in script_mapping:
         return os.path.join(base_path, script_mapping[selected])
 
-    raise ValueError(f"Invalid selection '{selected}'. Only 'all' and 'demo' are supported.")
+    raise ValueError(f"Invalid selection '{selected}'. Only 'customised' and 'demo' are supported.")
 
 
 # launch command based on the project
@@ -27,6 +27,7 @@ def pipe_cmd(
     selected_samples="all",
     work_dir="work",
     output_dir="output",
+    custom_sample_list=[],
 ):
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
@@ -42,7 +43,7 @@ def pipe_cmd(
 
         if selected_samples == "demo":
             cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} {work_dir} {output_dir}"
-        elif selected_samples == "all":
+        elif selected_samples == "all":  # this has no more sense since we have to specify the sample name index
             cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} --work-dir {work_dir} --outdir {output_dir}"
             ##./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json"
             # Usage:
@@ -52,7 +53,14 @@ def pipe_cmd(
             #     --env "/data/rds/DIT/SCICOM/SCRSE/shared/conda/nextflow_env" \
             #     --params "/data/params/parameters.json" \
             #     --config "custom_config.config"
+        elif selected_samples == "customised":
+            if not len(custom_sample_list):
+                print("custom_sample_list cannot be empty")
 
+            tab_separated_string = "\t".join(custom_sample_list)
+            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} --work-dir {work_dir} --outdir {output_dir} --samples {tab_separated_string}"
+        elif selected_samples == "test":
+            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} /data/scratch/DCO/DIGOPS/SCIENCOM/msarkis/NF-project-configurations/test.sh --work-dir {work_dir} --outdir {output_dir}"
         return cmd_pipeline.strip()
 
     # Command mappings

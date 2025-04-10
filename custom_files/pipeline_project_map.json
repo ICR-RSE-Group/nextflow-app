@@ -1,5 +1,0 @@
-{
-    "epi2me-human-variation": ["nf-long-reads"],
-    "epi2me-somatic-variation": ["mopopgen-support"],
-    "nfcore-rnaseq": ["nf-tp53"]
-}

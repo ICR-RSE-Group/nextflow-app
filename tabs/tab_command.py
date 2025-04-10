@@ -24,6 +24,7 @@ JOB_ID = ss_values["JOB_ID"]
 WORKDIR = ss_values["WORK_DIR"]
 OUTPUT_DIR = ss_values["OUTPUT_DIR"]
 run_pipeline_clicked = ss_values["run_pipeline_clicked"]
+custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
 
 
 def display_log(title, log_path, output_container):
@@ -37,7 +38,16 @@ def display_log(title, log_path, output_container):
         st.error(f"Failed to read {title.lower()} log: {e}")
 
 
-def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples="all", work_dir="work", output_dir="output"):
+def tab(
+    username,
+    MY_SSH,
+    selected_pipeline,
+    selected_project,
+    selected_samples="all",
+    work_dir="work",
+    output_dir="output",
+    custom_sample_list=[],
+):
     JOB_ID = ss_values["JOB_ID"]
 
     cols = st.columns([1, 1, 1])
@@ -58,6 +68,7 @@ def tab(username, MY_SSH, selected_pipeline, selected_project, selected_samples=
             selected_samples=selected_samples,
             output_dir=output_dir,
             work_dir=work_dir,
+            custom_sample_list=custom_sample_list,
         )
         st.code(cmd_pipeline)
         _dict = MY_SSH.run_cmd(cmd_pipeline)

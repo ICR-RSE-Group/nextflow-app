@@ -80,7 +80,6 @@ def tab():
         OK, MY_SSH, msg, GROUPS = handle_login(server, sftp_server, username, password)
         if OK:
             st.success(msg)
-            create_radio(GROUPS)
         else:
             st.error(msg)
 

@@ -1,4 +1,5 @@
 import streamlit as st
+import yaml
 
 import tabs.tab_command as tt
 from pipeline_project_map import map_pipeline_project
@@ -33,22 +34,25 @@ WORKDIR = ss_values["WORK_DIR"]
 OUTPUT_DIR = ss_values["OUTPUT_DIR"]
 run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
+custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
 
-samples = ["all", "demo"]  # , "customised"]
+samples = ["test", "all", "demo", "customised"]
 
 # Create the selectbox and update session state
-options = ["select"] + list(map_pipeline_project.keys())
-index = options.index(PIPELINE)
-PIPELINE = st.selectbox("Select a pipeline", options=options, index=index)  # , key="PIPELINE")
+pipeline_options = ["select"] + list(map_pipeline_project.keys())
+index = pipeline_options.index(PIPELINE)
+PIPELINE = st.selectbox("Select a pipeline", options=pipeline_options, index=index)  # , key="PIPELINE")
 # adding "select" as the first and default choice
 if PIPELINE != "select":
+    project_options = list(map_pipeline_project[PIPELINE].keys())
+
     PROJECT = st.selectbox(
         "Select your project",
-        options=map_pipeline_project[PIPELINE],
-        index=map_pipeline_project[PIPELINE].index(PIPELINE) if PIPELINE in map_pipeline_project[PIPELINE] else 0,
+        options=project_options,
+        index=project_options.index(PIPELINE) if PIPELINE in project_options else 0,
         on_change=reset_button_state,
     )
-
+    # samples here depend on the pipeline: human variation requires bam files, rnaseq requires a samplesheet
     SAMPLE = st.selectbox(
         "Select your samples",
         options=samples,
@@ -56,6 +60,22 @@ if PIPELINE != "select":
         on_change=reset_button_state,
     )
 
+    # If "customised" is selected, show additional input
+    if SAMPLE == "customised":
+        is_input_type_path = map_pipeline_project[PIPELINE][PROJECT]["is_inputType_path"]
+        msg = "Enter your sample names (comma-separated)"
+        if is_input_type_path:
+            msg = "Enter path to samplesheet"
+        custom_samples = st.text_input(msg, key="custom_samples", value=",".join(custom_sample_list))
+
+        # Optionally process the input into a list
+        if custom_samples:
+            custom_sample_list = [s.strip() for s in custom_samples.split(",") if s.strip()]
+
+            st.write("Your custom samples:", custom_sample_list)
+            ss_set("custom_sample_list", custom_sample_list)
+
+    # for tp53, we need to provide a sample sheet while for human-variation a simple sample list if enough
 WORK_DIR = st.text_input("Working directory", value=SCRATCH)
 OUTPUT_DIR = st.text_input("Output directory", value=SCRATCH)
 
@@ -69,6 +89,7 @@ if OK:
         selected_samples=SAMPLE,
         work_dir=WORK_DIR,
         output_dir=OUTPUT_DIR,
+        custom_sample_list=custom_sample_list,
     )
     save_in_ss(
         {
@@ -89,6 +110,7 @@ if OK:
             "OUTPUT_DIR": OUTPUT_DIR,
             "run_pipeline_clicked": run_pipeline_clicked,
             "button_clicked": button_clicked,
+            "custom_sample_list": custom_sample_list,
         }
     )
 else:

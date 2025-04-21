@@ -1,9 +1,8 @@
 import streamlit as st
-import yaml
 
 import tabs.tab_command as tt
 from pipeline_project_map import map_pipeline_project
-from shared.sessionstate import retrieve_all_from_ss, save_in_ss, ss_set
+from shared.sessionstate import retrieve_all_from_ss, save_in_ss, ss_get, ss_set
 from shared.visual import header
 
 
@@ -30,7 +29,7 @@ PIPELINE = ss_values["PIPELINE"]
 password = ss_values["password"]
 PROJECT = ss_values["PROJECT"]
 JOB_ID = ss_values["JOB_ID"]
-WORKDIR = ss_values["WORK_DIR"]
+WORK_DIR = ss_values["WORK_DIR"]
 OUTPUT_DIR = ss_values["OUTPUT_DIR"]
 run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
@@ -75,8 +74,8 @@ if PIPELINE != "select":
             st.write("Your custom samples:", custom_sample_list)
             ss_set("custom_sample_list", custom_sample_list)
 
-WORK_DIR = st.text_input("Working directory", value=SCRATCH)
-OUTPUT_DIR = st.text_input("Output directory", value=SCRATCH)
+WORK_DIR = st.text_input("Working directory", value=WORK_DIR or SCRATCH)
+OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or SCRATCH)
 
 # passing inputs between tabs
 if OK:
@@ -104,8 +103,8 @@ if OK:
             "SAMPLE": SAMPLE,
             "PIPELINE": PIPELINE,
             "PROJECT": PROJECT,
-            "JOB_ID": JOB_ID,
-            "WORKDIR": WORK_DIR,
+            # "JOB_ID": JOB_ID,
+            "WORK_DIR": WORK_DIR,
             "OUTPUT_DIR": OUTPUT_DIR,
             "run_pipeline_clicked": run_pipeline_clicked,
             "button_clicked": button_clicked,

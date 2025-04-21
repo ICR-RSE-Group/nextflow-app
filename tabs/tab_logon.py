@@ -97,6 +97,8 @@ def tab():
             "GROUP": GROUP,
             "GROUPS": GROUPS,
             "SCRATCH": SCRATCH,
+            "WORK_DIR": SCRATCH,
+            "OUTPUT_DIR": SCRATCH,  # set default to scratch
             "RDS": RDS,
             "SAMPLE": SAMPLE,
             "PIPELINE": PIPELINE,

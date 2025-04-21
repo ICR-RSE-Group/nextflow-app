@@ -80,7 +80,6 @@ def tab():
         OK, MY_SSH, msg, GROUPS = handle_login(server, sftp_server, username, password)
         if OK:
             st.success(msg)
-            create_radio(GROUPS)
         else:
             st.error(msg)
 
@@ -98,6 +97,8 @@ def tab():
             "GROUP": GROUP,
             "GROUPS": GROUPS,
             "SCRATCH": SCRATCH,
+            "WORK_DIR": SCRATCH,
+            "OUTPUT_DIR": SCRATCH,  # set default to scratch
             "RDS": RDS,
             "SAMPLE": SAMPLE,
             "PIPELINE": PIPELINE,

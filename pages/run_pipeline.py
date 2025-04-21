@@ -36,7 +36,7 @@ run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
 custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
 
-samples = ["test", "all", "demo", "customised"]
+samples = ["all", "demo", "customised"]  # , "test"]
 
 # Create the selectbox and update session state
 pipeline_options = ["select"] + list(map_pipeline_project.keys())
@@ -75,7 +75,6 @@ if PIPELINE != "select":
             st.write("Your custom samples:", custom_sample_list)
             ss_set("custom_sample_list", custom_sample_list)
 
-    # for tp53, we need to provide a sample sheet while for human-variation a simple sample list if enough
 WORK_DIR = st.text_input("Working directory", value=SCRATCH)
 OUTPUT_DIR = st.text_input("Output directory", value=SCRATCH)
 

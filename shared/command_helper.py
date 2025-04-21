@@ -59,8 +59,8 @@ def pipe_cmd(
 
             tab_separated_string = "\t".join(custom_sample_list)
             cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} --work-dir {work_dir} --outdir {output_dir} --samples {tab_separated_string}"
-        elif selected_samples == "test":
-            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} /data/scratch/DCO/DIGOPS/SCIENCOM/msarkis/NF-project-configurations/test.sh --work-dir {work_dir} --outdir {output_dir}"
+        # elif selected_samples == "test":
+        #     cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} /data/scratch/DCO/DIGOPS/SCIENCOM/msarkis/NF-project-configurations/test.sh --work-dir {work_dir} --outdir {output_dir}"
         return cmd_pipeline.strip()
 
     # Command mappings

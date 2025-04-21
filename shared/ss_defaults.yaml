@@ -11,7 +11,7 @@ keys_defaults:
   PIPELINE: "select"
   password: ""
   server: "alma.icr.ac.uk"
-  JOB_ID: None
+  JOB_ID: ""
   run_pipeline_clicked: False
   button_clicked : False
   group_selection: "Select an option"

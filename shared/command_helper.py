@@ -28,39 +28,52 @@ def pipe_cmd(
     work_dir="work",
     output_dir="output",
     custom_sample_list=[],
+    bed_file=""
 ):
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
         path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
 
-        cmd_pipeline = f"""
-        mkdir -p {work_dir}/logs
-        cd {work_dir}
-        """
         # not sure if this is the best thing-using job id for filenamne
         log_out = f"{work_dir}/logs/%j.out"
         log_err = f"{work_dir}/logs/%j.err"
 
-        if selected_samples == "demo":
-            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} {work_dir} {output_dir}"
-        elif selected_samples == "all":  # this has no more sense since we have to specify the sample name index
-            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} --work-dir {work_dir} --outdir {output_dir}"
-            ##./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json"
-            # Usage:
-            # bash launch_batch_analysis.sh \
-            #     --work-dir "workdir" \
-            #     --outdir "output" \
-            #     --env "/data/rds/DIT/SCICOM/SCRSE/shared/conda/nextflow_env" \
-            #     --params "/data/params/parameters.json" \
-            #     --config "custom_config.config"
-        elif selected_samples == "customised":
-            if not len(custom_sample_list):
-                print("custom_sample_list cannot be empty")
+        args = []
+        base_cmd = f"sbatch -o {log_out} -e {log_err}"
 
-            tab_separated_string = "\t".join(custom_sample_list)
-            cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} {path_to_script} --work-dir {work_dir} --outdir {output_dir} --samples {tab_separated_string}"
-        # elif selected_samples == "test":
+        if selected_samples == "demo":
+            args = [path_to_script, work_dir, output_dir]
+
+        elif selected_samples == "all":
+            #./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json" --bed file.bed
+            args = [
+                path_to_script,
+                "--work-dir", work_dir,
+                "--outdir", output_dir,
+            ]
+            if bed_file:
+                args += ["--bed", bed_file]
+
+        elif selected_samples == "customised":
+            if not custom_sample_list:
+                raise ValueError("custom_sample_list cannot be empty")
+            args = [
+                path_to_script,
+                "--work-dir", work_dir,
+                "--outdir", output_dir,
+                "--samples", "\t".join(custom_sample_list),
+            ]
+            if bed_file:
+                args += ["--bed", bed_file]
+        # elif selected_samples == "test": #this will become dry-run, but I should develop it for all scripts
         #     cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} /data/scratch/DCO/DIGOPS/SCIENCOM/msarkis/NF-project-configurations/test.sh --work-dir {work_dir} --outdir {output_dir}"
+ 
+        preamble = f"""
+        mkdir -p {work_dir}/logs
+        cd {work_dir}
+        """
+        # Combine all into the final shell command
+        cmd_pipeline = preamble + f"{base_cmd} {' '.join(args)}"
         return cmd_pipeline.strip()
 
     # Command mappings

@@ -1,6 +1,9 @@
 epi2me-human-variation:
   nf-long-reads:
     is_inputType_path: False
+epi2me-basecalling:
+  genomrep-support:
+    is_inputType_path: True  
 epi2me-somatic-variation:
   mopopgen-support:
     is_inputType_path: True

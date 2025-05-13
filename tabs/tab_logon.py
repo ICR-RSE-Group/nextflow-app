@@ -12,6 +12,9 @@ def handle_login(server, sftp_server, username, password):
     with st.spinner("Validating login..."):
         OK, MY_SSH, msg, GROUPS = hlp.validate_user(server, sftp_server, username, password)
 
+    if "hpcupser" in GROUPS:
+        GROUPS.remove("hpcupser")
+
     return OK, MY_SSH, msg, GROUPS
 
 
@@ -45,7 +48,7 @@ def tab():
 
     # Temporary session key for updating selection
     if "temp_group_selection" not in st.session_state:
-        ss_set("temp_group_selection", ss_get("group_selection", "Select an option"))
+        ss_set("temp_group_selection", ss_get("group_selection", ""))
         st.write(ss_get("temp_group_selection"))
 
     def update_group():
@@ -65,12 +68,14 @@ def tab():
         )
 
     def create_radio(GROUPS):
-        options = ["Select an option"] + GROUPS if GROUPS else ["Select an option"]
+        options = GROUPS if GROUPS else []
+        selection = ss_get("group_selection")
+        index = options.index(selection) if selection in options else 0
 
         st.radio(
             "Select group",
             options,
-            index=options.index(ss_get("group_selection")),
+            index=index,
             key="temp_group_selection",  # Temporary key for updates
             on_change=update_group,  # Calls update function on change
         )

@@ -64,6 +64,8 @@ def tab():
                 "GROUP": ss_get("group_selection"),
                 "SCRATCH": SCRATCH,
                 "RDS": RDS,
+                "WORK_DIR": SCRATCH,
+                "OUTPUT_DIR": SCRATCH,  # set default to scratch
             }
         )
 
@@ -71,13 +73,17 @@ def tab():
         options = GROUPS if GROUPS else []
         selection = ss_get("group_selection")
         index = options.index(selection) if selection in options else 0
+        # Force initialize session_state manually if only one option
+        if len(options) == 1:
+            ss_set("temp_group_selection",options[0])
+            update_group()
 
         st.radio(
             "Select group",
             options,
             index=index,
             key="temp_group_selection",  # Temporary key for updates
-            on_change=update_group,  # Calls update function on change
+            on_change=update_group, # Calls update function on change
         )
 
     # Handle connection
@@ -101,10 +107,6 @@ def tab():
             "password": password,
             "GROUP": GROUP,
             "GROUPS": GROUPS,
-            "SCRATCH": SCRATCH,
-            "WORK_DIR": SCRATCH,
-            "OUTPUT_DIR": SCRATCH,  # set default to scratch
-            "RDS": RDS,
             "SAMPLE": SAMPLE,
             "PIPELINE": PIPELINE,
             "PROJECT": PROJECT,

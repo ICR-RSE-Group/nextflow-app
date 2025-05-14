@@ -28,7 +28,8 @@ def pipe_cmd(
     work_dir="work",
     output_dir="output",
     custom_sample_list=[],
-    bed_file=""
+    bed_file="",
+    dry_run=False
 ):
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
@@ -37,17 +38,19 @@ def pipe_cmd(
         # not sure if this is the best thing-using job id for filenamne
         log_out = f"{work_dir}/logs/%j.out"
         log_err = f"{work_dir}/logs/%j.err"
-
-        args = []
+        
+        args = [path_to_script]
         base_cmd = f"sbatch -o {log_out} -e {log_err}"
 
         if selected_samples == "demo":
-            args = [path_to_script, work_dir, output_dir]
+            args += [work_dir, output_dir]
 
-        elif selected_samples == "all":
+        elif selected_samples == "all":#I removed this option
             #./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json" --bed file.bed
-            args = [
-                path_to_script,
+            if dry_run:
+                args.append("--dry-run")
+
+            args += [
                 "--work-dir", work_dir,
                 "--outdir", output_dir,
             ]
@@ -57,17 +60,16 @@ def pipe_cmd(
         elif selected_samples == "customised":
             if not custom_sample_list:
                 raise ValueError("custom_sample_list cannot be empty")
-            args = [
-                path_to_script,
+            if dry_run:
+                args.append("--dry-run")
+            args += [
                 "--work-dir", work_dir,
                 "--outdir", output_dir,
                 "--samples", "\t".join(custom_sample_list),
             ]
             if bed_file:
                 args += ["--bed", bed_file]
-        # elif selected_samples == "test": #this will become dry-run, but I should develop it for all scripts
-        #     cmd_pipeline += f"sbatch  -o {log_out} -e {log_err} /data/scratch/DCO/DIGOPS/SCIENCOM/msarkis/NF-project-configurations/test.sh --work-dir {work_dir} --outdir {output_dir}"
- 
+
         preamble = f"""
         mkdir -p {work_dir}/logs
         cd {work_dir}

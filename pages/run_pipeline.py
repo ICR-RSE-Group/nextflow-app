@@ -84,6 +84,7 @@ if PIPELINE != "select":
     )
 WORK_DIR = st.text_input("Working directory", value=WORK_DIR or SCRATCH)
 OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or SCRATCH)
+dry_run = st.checkbox("Dry run (do not execute the job)", value=False)
 
 # passing inputs between tabs
 if OK:
@@ -96,7 +97,8 @@ if OK:
         work_dir=WORK_DIR,
         output_dir=OUTPUT_DIR,
         custom_sample_list=custom_sample_list,
-        bed_file=BED_FILE
+        bed_file=BED_FILE,
+        dry_run=dry_run
     )
     save_in_ss(
         {

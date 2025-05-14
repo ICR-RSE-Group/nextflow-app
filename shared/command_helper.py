@@ -1,5 +1,5 @@
 import os
-
+from pathlib import Path 
 
 def get_path_to_script(selected_pipeline, selected_project, selected="all"):
     NX_SHARED_PATH = "/data/scratch/shared/RSE/NF-project-configurations"
@@ -39,11 +39,12 @@ def pipe_cmd(
         log_out = f"{work_dir}/logs/%j.out"
         log_err = f"{work_dir}/logs/%j.err"
         
-        args = [path_to_script]
-        base_cmd = f"sbatch -o {log_out} -e {log_err}"
+        args = []
+        base_cmd = f"bash {path_to_script}" #default
 
         if selected_samples == "demo":
-            args += [work_dir, output_dir]
+            base_cmd = f"sbatch -o {log_out} -e {log_err}"
+            args += [path_to_script, work_dir, output_dir]
 
         elif selected_samples == "all":#I removed this option
             #./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json" --bed file.bed

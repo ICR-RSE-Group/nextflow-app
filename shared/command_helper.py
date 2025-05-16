@@ -1,22 +1,25 @@
 import os
-from pathlib import Path 
+from typing import Tuple, Optional
 
-def get_path_to_script(selected_pipeline, selected_project, selected="all"):
+def get_path_to_script(
+    selected_pipeline: str,
+    selected_project: str,
+    selected: str = ""
+):
     NX_SHARED_PATH = "/data/scratch/shared/RSE/NF-project-configurations"
-    # e.g., /data/scratch/shared/RSE/NF-project-configurations/epi2me-human-variation/nf-long-reads/scripts
-    base_path = os.path.join(NX_SHARED_PATH, selected_pipeline, selected_project, "scripts")
+    base_path = os.path.join(NX_SHARED_PATH, selected_pipeline, selected_project)
 
     script_mapping = {
-        "all": "launch_samples.sh",
-        "demo": "launch_demo.sh",
-        "customised": "launch_samples.sh",
+        "demo": "scripts/launch_demo.sh",
+        "customised": "scripts/launch_samples.sh"
     }
 
-    if selected in script_mapping:
-        return os.path.join(base_path, script_mapping[selected])
+    if selected not in script_mapping:
+        raise ValueError(f"Invalid selection '{selected}'. Only 'customised', 'demo' are supported.")
 
-    raise ValueError(f"Invalid selection '{selected}'. Only 'customised' and 'demo' are supported.")
+    primary_script = os.path.join(base_path, script_mapping.get(selected, ""))
 
+    return primary_script
 
 # launch command based on the project
 def pipe_cmd(
@@ -29,7 +32,8 @@ def pipe_cmd(
     output_dir="output",
     custom_sample_list=[],
     bed_file="",
-    dry_run=False
+    dry_run=False,
+    adapt_samples=False
 ):
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
@@ -46,18 +50,6 @@ def pipe_cmd(
             base_cmd = f"sbatch -o {log_out} -e {log_err}"
             args += [path_to_script, work_dir, output_dir]
 
-        elif selected_samples == "all":#I removed this option
-            #./your_script.sh --env "/my/custom/env" --work-dir "my_work" --outdir "my_output" --config "my_config" --params "parans.json" --bed file.bed
-            if dry_run:
-                args.append("--dry-run")
-
-            args += [
-                "--work-dir", work_dir,
-                "--outdir", output_dir,
-            ]
-            if bed_file:
-                args += ["--bed", bed_file]
-
         elif selected_samples == "customised":
             if not custom_sample_list:
                 raise ValueError("custom_sample_list cannot be empty")
@@ -68,6 +60,8 @@ def pipe_cmd(
                 "--outdir", output_dir,
                 "--samples", "\t".join(custom_sample_list),
             ]
+            if adapt_samples:
+                args += ["--adapt-samples"]
             if bed_file:
                 args += ["--bed", bed_file]
 

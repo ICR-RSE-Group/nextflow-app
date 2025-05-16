@@ -42,7 +42,7 @@ def check_whiteList(username):
     whitelist = "custom_files/user_whitelist.tsv"
     df = pd.read_csv(whitelist, delimiter="\t")
     row = df.loc[df["username"] == username]
-    if row.empty:  # user not on the white liste
+    if row.empty:  # user not on the white list
         return False
     # update session info
     ss_set("user_group", row["group"])
@@ -50,6 +50,6 @@ def check_whiteList(username):
     return True
 
 
-if OK and GROUP != "Select an option":
+if OK and GROUP != "":
     if not check_whiteList(username):
         display_restricted_access(username)

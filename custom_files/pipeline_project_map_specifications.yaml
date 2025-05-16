@@ -1,12 +1,16 @@
 epi2me-human-variation:
   nf-long-reads:
     is_inputType_path: False
+    bed_file_as_arg: True
 epi2me-basecalling:
   genomrep-support:
-    is_inputType_path: True  
+    is_inputType_path: False
+    bed_file_as_arg: False
 epi2me-somatic-variation:
   mopopgen-support:
     is_inputType_path: True
+    bed_file_as_arg: False
 nfcore-rnaseq:
   nf-tp53:
     is_inputType_path: True
+    bed_file_as_arg: False

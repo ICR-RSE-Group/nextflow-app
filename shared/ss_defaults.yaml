@@ -3,7 +3,7 @@ keys_defaults:
   MY_SSH: null
   user_name: ""
   GROUPS: ""
-  GROUP: "Select an option"
+  GROUP: ""
   SCRATCH: ""
   RDS: ""
   PROJECT: null
@@ -14,7 +14,7 @@ keys_defaults:
   JOB_ID: None
   run_pipeline_clicked: False
   button_clicked : False
-  group_selection: "Select an option"
+  group_selection: ""
   WORK_DIR: None
   OUTPUT_DIR: None
   custom_sample_list: []

@@ -35,7 +35,7 @@ run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
 custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
 BED_FILE = ss_values["BED_FILE"]
-samples = ["all", "demo", "customised"]  # , "test"]
+samples = ["demo", "customised"]  # , "test"]
 
 # Create the selectbox and update session state
 pipeline_options = ["select"] + list(map_pipeline_project.keys())
@@ -73,14 +73,18 @@ if PIPELINE != "select":
 
             st.write("Your custom samples:", custom_sample_list)
             ss_set("custom_sample_list", custom_sample_list)
+    
+    use_bed_file = map_pipeline_project[PIPELINE][PROJECT]["bed_file_as_arg"]#bool
     # Optional BED file path
     BED_FILE = st.text_input(
         "Optional BED file path",
         value="",
         help="Provide a full path to a BED file on Alma server, or leave empty to skip and use full genome",
+        disabled=not use_bed_file
     )
 WORK_DIR = st.text_input("Working directory", value=WORK_DIR or SCRATCH)
 OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or SCRATCH)
+dry_run = st.checkbox("Dry run (do not execute the job)", value=False)
 
 # passing inputs between tabs
 if OK:
@@ -93,7 +97,8 @@ if OK:
         work_dir=WORK_DIR,
         output_dir=OUTPUT_DIR,
         custom_sample_list=custom_sample_list,
-        bed_file=BED_FILE
+        bed_file=BED_FILE,
+        dry_run=dry_run
     )
     save_in_ss(
         {

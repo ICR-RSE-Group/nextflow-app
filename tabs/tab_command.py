@@ -102,6 +102,7 @@ def tab(
     with tabQ:
         if st.button("Check slurm queues"):
             output = st.empty()
+            st.write(cmd_hlp.pipe_cmd(st.session_state["username"], cmd_num=1))
             with st.spinner("Checking queue..."):
                 with hlp.st_capture(output.code):
                     cmd_pipeline = cmd_hlp.pipe_cmd(st.session_state["username"], cmd_num=1)

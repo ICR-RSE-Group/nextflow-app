@@ -35,7 +35,7 @@ run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
 custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
 BED_FILE = ss_values["BED_FILE"]
-samples = ["demo", "customised"]  # , "test"]
+samples = ["demo", "customised"]
 
 # Create the selectbox and update session state
 pipeline_options = ["select"] + list(map_pipeline_project.keys())

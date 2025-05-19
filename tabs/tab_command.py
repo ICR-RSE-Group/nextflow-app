@@ -81,28 +81,31 @@ def tab(
     parsed_sample_list = get_sample_list(selected_samples, custom_sample_list)
     # --- Logs tab ---
     with tabL:
+        def show_logs():
+            sample = st.session_state.get("sample_to_log", "")
+            if not sample:
+                st.error("No job was launched yet")
+                return
+
+            log_out = f"{work_dir}/logs/log_{sample}.out"
+            log_err = f"{work_dir}/logs/log_{sample}.err"
+            tO, tE = st.tabs(["Output", "Error"])
+            outputO, outputE = tO.empty(), tE.empty()
+            with st.spinner("Fetching logs..."):
+                display_log("Output", log_out, outputO)
+                display_log("Error", log_err, outputE)
         # when checking logs, ask user to select one (drop-down list) of his samples at a time : demo or customised sample
+        st.selectbox("Choose an option", parsed_sample_list, key="sample_to_log", index=0)
+
         if st.button("Get Logs"):
-            _sample_to_log = st.selectbox("Choose an option", parsed_sample_list)
-            st.write("You selected:", _sample_to_log)
+            show_logs()
             #job_id = st.session_state.get("JOB_ID")
             #st.write("📌 Accessed JOB_ID:", job_id)  # DEBUG
-            if not _sample_to_log:
-                st.error("No job was launched yet")
-            else:
-                log_out = f"{work_dir}/logs/log_{_sample_to_log}.out"
-                log_err = f"{work_dir}/logs/log_{_sample_to_log}.err"
-                tO, tE = st.tabs(["Output", "Error"])
-                outputO, outputE = tO.empty(), tE.empty()
-                with st.spinner("Fetching logs..."):
-                    display_log("Output", log_out, outputO)
-                    display_log("Error", log_err, outputE)
 
     # --- Queues tab ---
     with tabQ:
         if st.button("Check slurm queues"):
             output = st.empty()
-            st.write(cmd_hlp.pipe_cmd(st.session_state["username"], cmd_num=1))
             with st.spinner("Checking queue..."):
                 with hlp.st_capture(output.code):
                     cmd_pipeline = cmd_hlp.pipe_cmd(st.session_state["username"], cmd_num=1)

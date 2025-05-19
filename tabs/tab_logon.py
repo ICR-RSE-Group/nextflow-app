@@ -12,8 +12,8 @@ def handle_login(server, sftp_server, username, password):
     with st.spinner("Validating login..."):
         OK, MY_SSH, msg, GROUPS = hlp.validate_user(server, sftp_server, username, password)
 
-    if "hpcupser" in GROUPS:
-        GROUPS.remove("hpcupser")
+    if "hpcuser" in GROUPS:
+        GROUPS.remove("hpcuser")
 
     return OK, MY_SSH, msg, GROUPS
 

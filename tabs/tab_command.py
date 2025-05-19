@@ -16,7 +16,8 @@ def tab(
     output_dir="output",
     custom_sample_list=[],
     bed_file="",
-    dry_run=False
+    dry_run=False,
+    adapt_samples=False
 ):
     # --- Initialize session state ---
     st.session_state.setdefault("username", username)
@@ -49,7 +50,8 @@ def tab(
             work_dir=work_dir,
             custom_sample_list=custom_sample_list,
             bed_file=bed_file,
-            dry_run=dry_run
+            dry_run=dry_run,
+            adapt_samples=adapt_samples
         )
         st.code(cmd_pipeline)
         result = MY_SSH.run_cmd(cmd_pipeline)

@@ -74,6 +74,13 @@ if PIPELINE != "select":
             st.write("Your custom samples:", custom_sample_list)
             ss_set("custom_sample_list", custom_sample_list)
     
+    adapt_samples = False
+    if(map_pipeline_project[PIPELINE][PROJECT]["adapt_samples"]):
+        adapt_samples = st.checkbox("Adapt samples prior to running nextflow", 
+                            value=False,
+                            help="If you are not sure, check if your samples are available in /data/rds/DGE/DUDGE/OGENETIC/Data/Nanopore/samples"
+                            )
+
     use_bed_file = map_pipeline_project[PIPELINE][PROJECT]["bed_file_as_arg"]#bool
     # Optional BED file path
     BED_FILE = st.text_input(
@@ -98,7 +105,8 @@ if OK:
         output_dir=OUTPUT_DIR,
         custom_sample_list=custom_sample_list,
         bed_file=BED_FILE,
-        dry_run=dry_run
+        dry_run=dry_run,
+        adapt_samples=adapt_samples
     )
     save_in_ss(
         {

@@ -11,7 +11,7 @@ def tab(
     MY_SSH,
     selected_pipeline,
     selected_project,
-    selected_samples="all",
+    selected_samples="",
     work_dir="work",
     output_dir="output",
     custom_sample_list=[],
@@ -21,7 +21,7 @@ def tab(
 ):
     # --- Initialize session state ---
     st.session_state.setdefault("username", username)
-    st.session_state.setdefault("JOB_ID", "17379785")
+    st.session_state.setdefault("JOB_ID", "")
     st.session_state.setdefault("run_pipeline_clicked", False)
 
     # --- Display username input ---
@@ -77,17 +77,21 @@ def tab(
         if st.session_state["JOB_ID"]:
             st.success(f"Running Job ID: {st.session_state['JOB_ID']}")
 
+    get_sample_list = lambda selected_samples, custom_sample_list: [selected_samples] if selected_samples == 'demo' else custom_sample_list
+    parsed_sample_list = get_sample_list(selected_samples, custom_sample_list)
     # --- Logs tab ---
     with tabL:
+        # when checking logs, ask user to select one (drop-down list) of his samples at a time : demo or customised sample
         if st.button("Get Logs"):
-            # st.write("📦 session_state:", dict(st.session_state))
-            job_id = st.session_state.get("JOB_ID")
-            st.write("📌 Accessed JOB_ID:", job_id)  # DEBUG
-            if not job_id:
+            _sample_to_log = st.selectbox("Choose an option", parsed_sample_list)
+            st.write("You selected:", _sample_to_log)
+            #job_id = st.session_state.get("JOB_ID")
+            #st.write("📌 Accessed JOB_ID:", job_id)  # DEBUG
+            if not _sample_to_log:
                 st.error("No job was launched yet")
             else:
-                log_out = f"{work_dir}/logs/{job_id}.out"
-                log_err = f"{work_dir}/logs/{job_id}.err"
+                log_out = f"{work_dir}/logs/log_{_sample_to_log}.out"
+                log_err = f"{work_dir}/logs/log_{_sample_to_log}.err"
                 tO, tE = st.tabs(["Output", "Error"])
                 outputO, outputE = tO.empty(), tE.empty()
                 with st.spinner("Fetching logs..."):
@@ -98,6 +102,7 @@ def tab(
     with tabQ:
         if st.button("Check slurm queues"):
             output = st.empty()
+            st.write(cmd_hlp.pipe_cmd(st.session_state["username"], cmd_num=1))
             with st.spinner("Checking queue..."):
                 with hlp.st_capture(output.code):
                     cmd_pipeline = cmd_hlp.pipe_cmd(st.session_state["username"], cmd_num=1)

@@ -35,12 +35,13 @@ run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
 custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
 BED_FILE = ss_values["BED_FILE"]
-samples = ["demo", "customised"]  # , "test"]
+samples = ["demo", "customised"]
 
 # Create the selectbox and update session state
 pipeline_options = ["select"] + list(map_pipeline_project.keys())
 index = pipeline_options.index(PIPELINE)
-PIPELINE = st.selectbox("Select a pipeline", options=pipeline_options, index=index)  # , key="PIPELINE")
+PIPELINE = st.selectbox("Select a pipeline", options=pipeline_options, index=index)
+adapt_samples = False
 # adding "select" as the first and default choice
 if PIPELINE != "select":
     project_options = list(map_pipeline_project[PIPELINE].keys())
@@ -74,7 +75,6 @@ if PIPELINE != "select":
             st.write("Your custom samples:", custom_sample_list)
             ss_set("custom_sample_list", custom_sample_list)
     
-    adapt_samples = False
     if(map_pipeline_project[PIPELINE][PROJECT]["adapt_samples"]):
         adapt_samples = st.checkbox("Adapt samples prior to running nextflow", 
                             value=False,

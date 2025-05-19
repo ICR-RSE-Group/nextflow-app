@@ -1,5 +1,5 @@
 import os
-from typing import Tuple, Optional
+import streamlit as st
 
 def get_path_to_script(
     selected_pipeline: str,
@@ -27,7 +27,7 @@ def pipe_cmd(
     selected_pipeline="",
     selected_project="",
     cmd_num=0,
-    selected_samples="all",
+    selected_samples="",
     work_dir="work",
     output_dir="output",
     custom_sample_list=[],
@@ -38,15 +38,13 @@ def pipe_cmd(
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
         path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
-
-        # not sure if this is the best thing-using job id for filenamne
-        log_out = f"{work_dir}/logs/%j.out"
-        log_err = f"{work_dir}/logs/%j.err"
         
         args = []
         base_cmd = f"bash {path_to_script}" #default
 
         if selected_samples == "demo":
+            log_out = f"{work_dir}/logs/log_demo.out"
+            log_err = f"{work_dir}/logs/log_demo.err"
             base_cmd = f"sbatch -o {log_out} -e {log_err}"
             args += [path_to_script, work_dir, output_dir]
 
@@ -64,7 +62,8 @@ def pipe_cmd(
                 args += ["--adapt-samples"]
             if bed_file:
                 args += ["--bed", bed_file]
-
+        
+        # note: I use logs/log_{samplename} for sample logs
         preamble = f"""
         mkdir -p {work_dir}/logs
         cd {work_dir}
@@ -75,16 +74,16 @@ def pipe_cmd(
 
     # Command mappings
     command_map = {
-        0: get_pipeline_command(),
-        1: f"squeue -u {username}",
-        2: (
+        0: get_pipeline_command,
+        1: lambda: f"squeue -u {username}",
+        2: lambda: (
             f"sacct --user {username} "
             "--format UID,User,JobID,JobName,Submit,Elapsed,Partition,"
             "NNodes,NCPUS,TotalCPU,CPUTime,ReqMem,MaxRSS,WorkDir,State,"
             "Account,AllocTres -P"
         ),
-        3: "echo hello from nextflow-on-Alma app",
+        3: lambda: "echo hello from nextflow-on-Alma app",
     }
 
     # Return the corresponding command
-    return command_map.get(cmd_num, "echo 'Invalid command number'")
+    return command_map.get(cmd_num, lambda: "echo 'Invalid command number'")()

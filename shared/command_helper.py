@@ -38,15 +38,13 @@ def pipe_cmd(
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
         path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
-
-        # not sure if this is the best thing-using job id for filenamne
-        log_out = f"{work_dir}/logs/%j.out"
-        log_err = f"{work_dir}/logs/%j.err"
         
         args = []
         base_cmd = f"bash {path_to_script}" #default
 
         if selected_samples == "demo":
+            log_out = f"{work_dir}/logs/log_demo.out"
+            log_err = f"{work_dir}/logs/log_demo.err"
             base_cmd = f"sbatch -o {log_out} -e {log_err}"
             args += [path_to_script, work_dir, output_dir]
 
@@ -64,7 +62,8 @@ def pipe_cmd(
                 args += ["--adapt-samples"]
             if bed_file:
                 args += ["--bed", bed_file]
-
+        
+        # note: I use logs/log_{samplename} for sample logs
         preamble = f"""
         mkdir -p {work_dir}/logs
         cd {work_dir}

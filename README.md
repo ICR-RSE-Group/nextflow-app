@@ -1,4 +1,39 @@
-# green-alma
+# Nextflow-app for Alma
+Nextflow App is a web-based tool built with Streamlit, hosted on our internal ShinyProxy server. It allows researchers to launch pre-configured Nextflow pipelines on the Alma server with just a click — no command-line work needed.
+
+Before using the app, make sure the following setup steps are completed:
+
+1. Access to Alma
+You must have an active user account and access credentials for the Alma server.
+
+2. Configure Mamba
+The application relies on Mamba to manage environments. Run the following commands to initialize Mamba:
+```bash
+mamba init
+source ~/.bashrc
+```
+
+3. Change the Nextflow Assets Directory
+By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space:
+```bash
+export NXF_ASSETS=/data/scratch/personal/path/<your_username>/.nextflow/assets
+source ~/.bashrc
+```
+
+4. Configure Git Access for ICR Pipelines
+If you're using one of our ICR-maintained pipelines (e.g., icr-nanopore-pauses), you'll need to configure Git access for Nextflow to pull them directly from our GitLab instance.
+
+a. Set the SCM (Source Code Management) configuration path:
+```bash
+export NXF_SCM_FILE=/data/scratch/personal/path/<your_username>/.nextflow/scm
+source ~/.bashrc
+```
+
+b. Create the SCM file:
+Note: Make sure to update the path to the scm file
+```bash
+echo -e "providers {\n    icr {\n        server = 'https://git.icr.ac.uk'\n        platform = 'gitlab'\n    }\n}" > /data/scratch/personal/path/<your_username>/.nextflow/scm
+```
 
 ## Dev setup
 

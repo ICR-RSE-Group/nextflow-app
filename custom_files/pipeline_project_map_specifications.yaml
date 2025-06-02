@@ -3,11 +3,6 @@ epi2me-human-variation:
     is_inputType_path: False
     bed_file_as_arg: True
     adapt_samples: True
-epi2me-basecalling:
-  genomrep-support:
-    is_inputType_path: False
-    bed_file_as_arg: False
-    adapt_samples: False
 epi2me-somatic-variation:
   mopopgen-support:
     is_inputType_path: True
@@ -16,5 +11,15 @@ epi2me-somatic-variation:
 nfcore-rnaseq:
   nf-tp53:
     is_inputType_path: True
+    bed_file_as_arg: False
+    adapt_samples: False
+  epi2me-basecalling:
+  genomrep-support:
+    is_inputType_path: False
+    bed_file_as_arg: False
+    adapt_samples: False
+icr-nanopore-pauses:
+  genomrep-support:
+    is_inputType_path: False
     bed_file_as_arg: False
     adapt_samples: False

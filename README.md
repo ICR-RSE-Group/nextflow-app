@@ -9,14 +9,18 @@ You must have an active user account and access credentials for the Alma server.
 2. Configure Mamba
 The application relies on Mamba to manage environments. Run the following commands to initialize Mamba:
 ```bash
+srun --pty --mem=12GB -c4 -t 15:00:00 -p interactive bash
 mamba init
 source ~/.bashrc
 ```
 
 3. Change the Nextflow Assets Directory
-By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space:
+By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space. Open ~/.bashrc using vi and write the following command:
 ```bash
 export NXF_ASSETS=/data/scratch/personal/path/<your_username>/.nextflow/assets
+```
+Reload your .bashrc:
+```bash
 source ~/.bashrc
 ```
 
@@ -24,8 +28,13 @@ source ~/.bashrc
 If you're using one of our ICR-maintained pipelines (e.g., icr-nanopore-pauses), you'll need to configure Git access for Nextflow to pull them directly from our GitLab instance.
 
 a. Set the SCM (Source Code Management) configuration path:
+Open ~/.bashrc using vi and write the following command:
 ```bash
 export NXF_SCM_FILE=/data/scratch/personal/path/<your_username>/.nextflow/scm
+```
+
+Reload your .bashrc:
+```bash
 source ~/.bashrc
 ```
 

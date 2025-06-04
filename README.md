@@ -14,10 +14,11 @@ mamba init
 source ~/.bashrc
 ```
 
-3. Change the Nextflow Assets Directory
-By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space. Open ~/.bashrc using vi and write the following command:
+3. Change the Nextflow Assets Directory and singlarity cache directory
+By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space. Open ~/.bashrc using vi and write the following lines:
 ```bash
 export NXF_ASSETS=/data/scratch/personal/path/<your_username>/.nextflow/assets
+export NXF_SINGULARITY_CACHEDIR=/data/scratch/shared/SINGULARITY-DOWNLOAD/nextflow/.singularity
 ```
 Reload your .bashrc:
 ```bash

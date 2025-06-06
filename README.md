@@ -10,6 +10,8 @@ You must have an active user account and access credentials for the Alma server.
 The application relies on Mamba to manage environments. Run the following commands to initialize Mamba:
 ```bash
 srun --pty --mem=12GB -c4 -t 15:00:00 -p interactive bash
+module use /opt/software/easybuild/modules/all
+module load Mamba
 mamba init
 source ~/.bashrc
 ```
@@ -42,8 +44,18 @@ source ~/.bashrc
 b. Create the SCM file:
 Note: Make sure to update the path to the scm file
 ```bash
-echo -e "providers {\n    icr {\n        server = 'https://git.icr.ac.uk'\n        platform = 'gitlab'\n    }\n}" > /data/scratch/personal/path/<your_username>/.nextflow/scm
+vi /data/scratch/personal/path/<your_username>/.nextflow/scm
 ```
+Then write and save the following inside the scm file
+```
+providers {
+    icr {
+        server = 'https://git.icr.ac.uk'
+        platform = 'gitlab'
+    }
+}
+```
+
 
 ## Dev setup
 

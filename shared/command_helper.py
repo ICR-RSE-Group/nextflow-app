@@ -56,7 +56,7 @@ def pipe_cmd(
             args += [
                 "--work-dir", work_dir,
                 "--outdir", output_dir,
-                "--samples", "\t".join(custom_sample_list),
+                "--samples", " ".join(custom_sample_list),
             ]
             if adapt_samples:
                 args += ["--adapt-samples"]

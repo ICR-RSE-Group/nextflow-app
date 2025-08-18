@@ -19,3 +19,4 @@ keys_defaults:
   OUTPUT_DIR: None
   custom_sample_list: []
   BED_FILE: ""
+  BAM_DIR: ""

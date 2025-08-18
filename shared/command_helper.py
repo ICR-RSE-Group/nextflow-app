@@ -30,6 +30,7 @@ def pipe_cmd(
     selected_samples="",
     work_dir="work",
     output_dir="output",
+    bam_dir="",
     custom_sample_list=[],
     bed_file="",
     dry_run=False,
@@ -57,6 +58,7 @@ def pipe_cmd(
                 "--work-dir", work_dir,
                 "--outdir", output_dir,
                 "--samples", " ".join(custom_sample_list),
+                "--out_bam_folder", bam_dir,
             ]
             if adapt_samples:
                 args += ["--adapt-samples"]
@@ -67,6 +69,7 @@ def pipe_cmd(
         preamble = f"""
         mkdir -p {work_dir}/logs
         cd {work_dir}
+        mkdir {bam_dir}
         """
         # Combine all into the final shell command
         cmd_pipeline = preamble + f"{base_cmd} {' '.join(args)}"

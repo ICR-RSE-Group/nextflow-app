@@ -30,7 +30,7 @@ def pipe_cmd(
     selected_samples="",
     work_dir="work",
     output_dir="output",
-    bam_dir="",
+    bam_dir="",# it s not always a bam dir, depending on the pipeline
     custom_sample_list=[],
     bed_file="",
     dry_run=False,
@@ -58,8 +58,13 @@ def pipe_cmd(
                 "--work-dir", work_dir,
                 "--outdir", output_dir,
                 "--samples", " ".join(custom_sample_list),
-                "--out_bam_folder", bam_dir,
+                #"--out_bam_folder", bam_dir,
             ]
+            if selected_pipeline == "icr-nanopore-pauses" and selected_project == "genomrep-support":
+                args+= ["--base-dir", bam_dir]
+            elif selected_project == "nf-long-reads":
+                args+= ["--out_bam_folder", bam_dir]
+
             if adapt_samples:
                 args += ["--adapt-samples"]
             if bed_file:
@@ -69,7 +74,11 @@ def pipe_cmd(
         preamble = f"""
         mkdir -p {work_dir}/logs
         cd {work_dir}
-        mkdir {bam_dir}
+        """
+
+        if selected_project == "nf-long-reads":
+            preamble += f"""
+        mkdir -p {bam_dir}
         """
         # Combine all into the final shell command
         cmd_pipeline = preamble + f"{base_cmd} {' '.join(args)}"

@@ -31,7 +31,7 @@ PROJECT = ss_values["PROJECT"]
 JOB_ID = ss_values["JOB_ID"]
 WORK_DIR = ss_values["WORK_DIR"]
 OUTPUT_DIR = ss_values["OUTPUT_DIR"]
-BAM_DIR = ss_values["BAM_DIR"]
+IN_DIR = ss_values["IN_DIR"]
 run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
 custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
@@ -92,7 +92,15 @@ if PIPELINE != "select":
     )
 WORK_DIR = st.text_input("Working directory", value=WORK_DIR or SCRATCH)
 OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or SCRATCH)
-BAM_DIR = st.text_input("Adapted BAM directory", value=BAM_DIR or "/data/rds/DGE/DUDGE/OGENETIC/Data/Nanopore/samples")
+
+# very specific field for default values that I would like to remove
+default_path = ""
+if PIPELINE == "icr-nanopore-pauses" and PROJECT == "genomrep-support":
+    default_path = "/data/rds/DBI/DUDBI/GENOMREP/bdelpino/Nanopore_Sequencing/Raw_data/250506_K562_AvsS/no_sample_id"
+elif PROJECT == "nf-long-reads":
+    default_path = "/data/rds/DGE/DUDGE/OGENETIC/Data/Nanopore/samples"
+
+IN_DIR = st.text_input("Sample directory", value=IN_DIR or default_path)
 
 dry_run = st.checkbox("Dry run (do not execute the job)", value=False)
 
@@ -106,7 +114,7 @@ if OK:
         selected_samples=SAMPLE,
         work_dir=WORK_DIR,
         output_dir=OUTPUT_DIR,
-        bam_dir=BAM_DIR,
+        bam_dir=IN_DIR, # not always bam files, TODO: rename it
         custom_sample_list=custom_sample_list,
         bed_file=BED_FILE,
         dry_run=dry_run,
@@ -129,7 +137,7 @@ if OK:
             # "JOB_ID": JOB_ID,
             "WORK_DIR": WORK_DIR,
             "OUTPUT_DIR": OUTPUT_DIR,
-            "BAM_DIR": BAM_DIR,
+            "IN_DIR": IN_DIR,
             "run_pipeline_clicked": run_pipeline_clicked,
             "button_clicked": button_clicked,
             "custom_sample_list": custom_sample_list,

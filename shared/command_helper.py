@@ -1,5 +1,6 @@
 import os
 import streamlit as st
+from pathlib import Path
 
 def get_path_to_script(
     selected_pipeline: str,
@@ -34,20 +35,26 @@ def pipe_cmd(
     custom_sample_list=[],
     bed_file="",
     dry_run=False,
-    adapt_samples=False
+    adapt_samples=False,
+    environment="", #custom mamba environment
 ):
     def get_pipeline_command():
         """Generate the pipeline execution command based on the sample selection."""
         path_to_script = get_path_to_script(selected_pipeline, selected_project, selected_samples)
-        
+        # extract path to config file
+        # TODO: ideally this should be an input, not hardcoded
+        base_dir = Path(path_to_script).parent.parent
+        config_path =str(base_dir / "custom_config.config")
+
         args = []
+
         base_cmd = f"bash {path_to_script}" #default
 
         if selected_samples == "demo":
             log_out = f"{work_dir}/logs/log_demo.out"
             log_err = f"{work_dir}/logs/log_demo.err"
             base_cmd = f"sbatch -o {log_out} -e {log_err}"
-            args += [path_to_script, work_dir, output_dir]
+            args += [path_to_script, work_dir, output_dir, config_path, environment]
 
         elif selected_samples == "customised":
             if not custom_sample_list:
@@ -58,7 +65,7 @@ def pipe_cmd(
                 "--work-dir", work_dir,
                 "--outdir", output_dir,
                 "--samples", " ".join(custom_sample_list),
-                #"--out_bam_folder", bam_dir,
+                "--config", config_path,
             ]
             if selected_pipeline == "icr-nanopore-pauses" and selected_project == "genomrep-support":
                 args+= ["--base-dir", bam_dir]
@@ -69,7 +76,8 @@ def pipe_cmd(
                 args += ["--adapt-samples"]
             if bed_file:
                 args += ["--bed", bed_file]
-        
+            if environment and environment.strip():
+                args +=["--env", environment]
         # note: I use logs/log_{samplename} for sample logs
         preamble = f"""
         mkdir -p {work_dir}/logs

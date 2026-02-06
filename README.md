@@ -105,3 +105,13 @@ Now, pre-commit hooks will run automatically on every commit to ensure code qual
 ```
 pre-commit run --all-files
 ```
+
+# To build and push docker image
+
+```bash
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t icrsc/nextflow-app \
+  --push \
+  .
+```

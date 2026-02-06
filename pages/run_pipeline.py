@@ -34,8 +34,9 @@ OUTPUT_DIR = ss_values["OUTPUT_DIR"]
 IN_DIR = ss_values["IN_DIR"]
 run_pipeline_clicked = ss_values["run_pipeline_clicked"]
 button_clicked = ss_values["button_clicked"]
-custom_sample_list = ss_values["custom_sample_list"]  # only availanle if custom sample is selected
+custom_sample_list = ss_values["custom_sample_list"]  # only available if custom sample is selected
 BED_FILE = ss_values["BED_FILE"]
+ENVIRONMENT_PATH = ss_values["ENVIRONMENT_PATH"]
 samples = ["demo", "customised"]
 
 # Create the selectbox and update session state
@@ -92,6 +93,28 @@ if PIPELINE != "select":
     )
 WORK_DIR = st.text_input("Working directory", value=WORK_DIR or SCRATCH)
 OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or SCRATCH)
+ENVIRONMENT_PATH=st.text_input(label="Conda environment path", 
+                               value=ENVIRONMENT_PATH,
+    help=(
+        "Absolute path to a conda environment that contains Nextflow.\n\n"
+        "Example:\n"
+        "/data/rds/DIT/SCICOM/SCRSE/shared/conda/nextflow_env\n"
+        "You can find this path on Alma using:\n"
+        "  conda info --envs")
+)
+
+with st.expander("How to create a conda environment with Nextflow"):
+    st.markdown("""
+### Create the environment
+```bash
+conda create -p /path/onAlma/to/nextflow_env -c bioconda nextflow -y
+```
+### Verify nextflow  is installed
+```bash
+conda activate /path/onAlma/to/nextflow_env
+nextflow -version               
+```
+""")
 
 # very specific field for default values that I would like to remove
 default_path = ""
@@ -118,7 +141,8 @@ if OK:
         custom_sample_list=custom_sample_list,
         bed_file=BED_FILE,
         dry_run=dry_run,
-        adapt_samples=adapt_samples
+        adapt_samples=adapt_samples,
+        environment=ENVIRONMENT_PATH
     )
     save_in_ss(
         {
@@ -142,6 +166,7 @@ if OK:
             "button_clicked": button_clicked,
             "custom_sample_list": custom_sample_list,
             "BED_FILE":BED_FILE,
+            "ENVIRONMENT_PATH":ENVIRONMENT_PATH,
         }
     )
 else:

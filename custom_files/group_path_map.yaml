@@ -1,7 +1,5 @@
 group_paths:
   infotech:
-    scratch: "/data/scratch/DCO/DIGOPS/SCIENCOM/{username}"
-    rds: "/data/rds/DIT/SCICOM/SCRSE"
+    rds: "/data/rds/DIT/SCICOM/SCRSE/{username}"
   default:
-    scratch: "/scratch/{username}/{group}"
-    rds: "/rds/general/user/{username}/home"
+    rds: "/rds/general/user/{username}"

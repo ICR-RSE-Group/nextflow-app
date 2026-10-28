@@ -7,7 +7,7 @@ def get_path_to_script(
     selected_project: str,
     selected: str = ""
 ):
-    NX_SHARED_PATH = "/data/scratch/shared/RSE/NF-project-configurations"
+    NX_SHARED_PATH = "/data/rds/shared/RSE/NF-project-configurations"
     base_path = os.path.join(NX_SHARED_PATH, selected_pipeline, selected_project)
 
     script_mapping = {

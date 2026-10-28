@@ -43,14 +43,13 @@ def validate_user(ssh_host, sftp_host, username, password):
 
 
 ############################################################################
-def get_scratch_rds_path(username, group, yaml_file="custom_files/group_path_map.yaml"):
+def get_rds_path(username, group, yaml_file="custom_files/group_path_map.yaml"):
     print(username, group)
     with open(yaml_file, "r") as file:
         config = yaml.safe_load(file)
 
     group_config = config["group_paths"].get(group, config["group_paths"].get("default"))
 
-    scratch = group_config["scratch"].format(username=username, group=group)
     rds = group_config["rds"].format(username=username)
-    print(scratch, rds)
-    return scratch, rds
+    print(rds)
+    return rds

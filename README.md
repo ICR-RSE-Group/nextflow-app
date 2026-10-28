@@ -19,8 +19,8 @@ source ~/.bashrc
 3. Change the Nextflow Assets Directory and singlarity cache directory
 By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space. Open ~/.bashrc using vi and write the following lines:
 ```bash
-export NXF_ASSETS=/data/scratch/personal/path/<your_username>/.nextflow/assets
-export NXF_SINGULARITY_CACHEDIR=/data/scratch/shared/SINGULARITY-DOWNLOAD/nextflow/.singularity
+export NXF_ASSETS=/data/rds/personal/path/<your_username>/.nextflow/assets
+export NXF_SINGULARITY_CACHEDIR=/data/rds/shared/SINGULARITY/nextflow
 ```
 Reload your .bashrc:
 ```bash
@@ -33,7 +33,7 @@ If you're using one of our ICR-maintained pipelines (e.g., icr-nanopore-pauses),
 a. Set the SCM (Source Code Management) configuration path:
 Open ~/.bashrc using vi and write the following command:
 ```bash
-export NXF_SCM_FILE=/data/scratch/personal/path/<your_username>/.nextflow/scm
+export NXF_SCM_FILE=/data/rds/personal/path/<your_username>/.nextflow/scm
 ```
 
 Reload your .bashrc:
@@ -44,7 +44,7 @@ source ~/.bashrc
 b. Create the SCM file:
 Note: Make sure to update the path to the scm file
 ```bash
-vi /data/scratch/personal/path/<your_username>/.nextflow/scm
+vi /data/rds/personal/path/<your_username>/.nextflow/scm
 ```
 Then write and save the following inside the scm file
 ```

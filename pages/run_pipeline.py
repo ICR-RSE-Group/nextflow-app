@@ -22,7 +22,6 @@ username = ss_values["user_name"]
 server = ss_values["server"]
 GROUP = ss_values["GROUP"]
 GROUPS = ss_values["GROUPS"]
-SCRATCH = ss_values["SCRATCH"]
 RDS = ss_values["RDS"]
 SAMPLE = ss_values["SAMPLE"]
 PIPELINE = ss_values["PIPELINE"]
@@ -91,8 +90,8 @@ if PIPELINE != "select":
         help="Provide a full path to a BED file on Alma server, or leave empty to skip and use full genome",
         disabled=not use_bed_file
     )
-WORK_DIR = st.text_input("Working directory", value=WORK_DIR or SCRATCH)
-OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or SCRATCH)
+WORK_DIR = st.text_input("Working directory", value=WORK_DIR or RDS)
+OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or RDS)
 ENVIRONMENT_PATH=st.text_input(label="Conda environment path", 
                                value=ENVIRONMENT_PATH,
     help=(
@@ -153,7 +152,6 @@ if OK:
             "password": password,
             "GROUP": GROUP,
             "GROUPS": GROUPS,
-            "SCRATCH": SCRATCH,
             "RDS": RDS,
             "SAMPLE": SAMPLE,
             "PIPELINE": PIPELINE,

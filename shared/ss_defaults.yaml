@@ -20,3 +20,4 @@ keys_defaults:
   custom_sample_list: []
   BED_FILE: ""
   IN_DIR: ""
+  ENVIRONMENT_PATH: ""

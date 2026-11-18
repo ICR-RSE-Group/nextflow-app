@@ -16,10 +16,15 @@ mamba init
 source ~/.bashrc
 ```
 
-3. Change the Nextflow Assets Directory and singlarity cache directory
-By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your SCRATCH space. Open ~/.bashrc using vi and write the following lines:
+3. Change the Nextflow Assets, Work and Singularity cache directories
+By default, Nextflow stores pipeline files in your home directory, which has limited storage on Alma. We strongly recommend redirecting the asset path to your RDS space.
+
+Nextflow also writes large intermediate files to its work directory. These don't need to be backed up, so point the work directory to a `no-backup` folder on RDS. Files in `no-backup` are not backed up, which makes it the RDS equivalent of the old SCRATCH space.
+
+Open ~/.bashrc using vi and write the following lines:
 ```bash
 export NXF_ASSETS=/data/rds/personal/path/<your_username>/.nextflow/assets
+export NXF_WORK=no-backup/work
 export NXF_SINGULARITY_CACHEDIR=/data/rds/shared/SINGULARITY/nextflow
 ```
 Reload your .bashrc:

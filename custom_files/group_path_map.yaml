@@ -2,4 +2,4 @@ group_paths:
   infotech:
     rds: "/data/rds/DIT/SCICOM/SCRSE/{username}"
   default:
-    rds: "/rds/general/user/{username}"
+    rds: ""  # no known path; users enter their own

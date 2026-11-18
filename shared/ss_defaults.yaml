@@ -4,7 +4,6 @@ keys_defaults:
   user_name: ""
   GROUPS: ""
   GROUP: ""
-  SCRATCH: ""
   RDS: ""
   PROJECT: null
   SAMPLE: null

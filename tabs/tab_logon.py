@@ -28,7 +28,6 @@ def tab():
     server = ss_values["server"]
     GROUP = ss_values["GROUP"]
     GROUPS = ss_values["GROUPS"]
-    SCRATCH = ss_values["SCRATCH"]
     RDS = ss_values["RDS"]
     SAMPLE = ss_values["SAMPLE"]
     PIPELINE = ss_values["PIPELINE"]
@@ -54,7 +53,7 @@ def tab():
     def update_group():
         ss_set("group_selection", st.session_state["temp_group_selection"])
         st.write(ss_get("group_selection"))
-        SCRATCH, RDS = hlp.get_scratch_rds_path(username, st.session_state["group_selection"])
+        RDS = hlp.get_rds_path(username, st.session_state["group_selection"])
         save_in_ss(
             {
                 "OK": True,
@@ -62,10 +61,9 @@ def tab():
                 "user_name": username,
                 "GROUPS": GROUPS,
                 "GROUP": ss_get("group_selection"),
-                "SCRATCH": SCRATCH,
                 "RDS": RDS,
-                "WORK_DIR": SCRATCH,
-                "OUTPUT_DIR": SCRATCH,  # set default to scratch
+                "WORK_DIR": RDS,
+                "OUTPUT_DIR": RDS,  # set default to rds
             }
         )
 

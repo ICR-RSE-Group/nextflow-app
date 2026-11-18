@@ -90,8 +90,8 @@ if PIPELINE != "select":
         help="Provide a full path to a BED file on Alma server, or leave empty to skip and use full genome",
         disabled=not use_bed_file
     )
-WORK_DIR = st.text_input("Working directory", value=WORK_DIR or RDS)
-OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or RDS)
+WORK_DIR = st.text_input("Working directory", value=WORK_DIR or RDS).strip()
+OUTPUT_DIR = st.text_input("Output directory", value=OUTPUT_DIR or RDS).strip()
 ENVIRONMENT_PATH=st.text_input(label="Conda environment path", 
                                value=ENVIRONMENT_PATH,
     help=(
@@ -126,23 +126,28 @@ IN_DIR = st.text_input("Sample directory", value=IN_DIR or default_path)
 
 dry_run = st.checkbox("Dry run (do not execute the job)", value=False)
 
+missing_dirs = [name for name, value in (("Working directory", WORK_DIR), ("Output directory", OUTPUT_DIR)) if not value]
+
 # passing inputs between tabs
+if OK and missing_dirs:
+    st.warning(f"Please enter a path for: {', '.join(missing_dirs)}")
 if OK:
-    tt.tab(
-        username,
-        MY_SSH,
-        PIPELINE,
-        PROJECT,
-        selected_samples=SAMPLE,
-        work_dir=WORK_DIR,
-        output_dir=OUTPUT_DIR,
-        bam_dir=IN_DIR, # not always bam files, TODO: rename it
-        custom_sample_list=custom_sample_list,
-        bed_file=BED_FILE,
-        dry_run=dry_run,
-        adapt_samples=adapt_samples,
-        environment=ENVIRONMENT_PATH
-    )
+    if not missing_dirs:
+        tt.tab(
+            username,
+            MY_SSH,
+            PIPELINE,
+            PROJECT,
+            selected_samples=SAMPLE,
+            work_dir=WORK_DIR,
+            output_dir=OUTPUT_DIR,
+            bam_dir=IN_DIR, # not always bam files, TODO: rename it
+            custom_sample_list=custom_sample_list,
+            bed_file=BED_FILE,
+            dry_run=dry_run,
+            adapt_samples=adapt_samples,
+            environment=ENVIRONMENT_PATH
+        )
     save_in_ss(
         {
             "OK": OK,
